@@ -1,2 +1,5 @@
 venv/
 .idea/
+
+# Ignore testing Jupyter Notebook
+notebook-tests.ipynb
