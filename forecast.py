@@ -2,14 +2,7 @@ import requests
 import pandas as pd
 import json
 from urllib.parse import urlencode
-import re
-
-def to_snake_case(text: str) -> str:
-    """
-    Converts a camelCase or PascalCase string to snake_case.
-    """
-    s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', text)
-    return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
+from utils import to_snake_case
 
 class SurflineWrapper:
     """
