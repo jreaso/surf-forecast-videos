@@ -4,6 +4,9 @@ import json
 from urllib.parse import urlencode
 from utils import to_snake_case
 
+# NOTE: THE WAY `sunglight_times` IS CONFIGURED MEANS `days` MUST BE 1 IN params - fix this in representation, or force
+# days to be 1. It won't throw an error it will just only use todays sunlight times
+
 class SurflineWrapper:
     """
     A wrapper for interacting with the Surfline API to fetch forecast data.
@@ -74,7 +77,7 @@ class SurflineWrapper:
             'spot_id': spot_id,
             'utc_offset': response_data['']['utcOffset'],
             'units': response_data['']['units']
-        }, 'surf': [], 'swell': [], 'wind': [], 'tide': [], 'weather': [], 'probability': []}
+        }, 'surf': [], 'swell': [], 'wind': [], 'tide': [], 'weather': [], 'forecast': []}
 
         # Wave (Surf and Swells)
         for wave_obs in response_data['wave']['data']['wave']:
@@ -102,7 +105,7 @@ class SurflineWrapper:
             })
 
             # Forecast Probability
-            forecast_data['probability'].append({
+            forecast_data['forecast'].append({
                 'timestamp': wave_obs['timestamp'],
                 'probability': wave_obs['probability']
             })
@@ -142,16 +145,34 @@ class Forecast:
                            'timestamp': timestamp,
                            'utc_offset': self.utc_offset} for timestamp in self.timestamps]
 
-        for attr in ('surf', 'wind', 'tides', 'weather'):
-            pass
-#            {f"{attr}_{to_snake_case(key)}" if key != "timestamp" else key:
-#                 [entry[key] for entry in self.forecast[attr]] for key in self.forecast[attr][0]}
+        for i, d in enumerate(flattened_data):
+            for attr in ('surf', 'swell', 'wind', 'forecast', 'tide', 'weather'):
+                if attr in self.data:
+                    # check timestamps match before merging
+                    if self.data[attr][i]["timestamp"] == d["timestamp"]:
+                        for key, value in self.data[attr][i].items():
+                            if key != "timestamp":
+                                d[f"{attr}_{to_snake_case(key)}"] = value
+                else:
+                    raise ValueError(f"No {attr} attribute in forecast data")
+
+        # add an extra key `is_light` in place of `sunlight_times`
+        sunrise = self.data['sunlight_times']['sunrise']
+        sunset = self.data['sunlight_times']['sunset']
+
+        for d in flattened_data:
+            d['is_light'] = 1 if sunrise <= d['timestamp'] <= sunset else 0
 
         self.flat_data = flattened_data
         return self.flat_data
 
     def to_dataframe(self, attr=None) -> pd.DataFrame:
-        return pd.DataFrame(self.flatten())
+        df = pd.DataFrame(self.flatten())
+
+        # convert the timestamp to a pandas datetime object
+        df['timestamp'] = pd.to_datetime(df['timestamp'], unit='s', utc=True)
+
+        return df
 
     def to_json(self) -> str:
         return json.dumps(self.data, indent=4)
@@ -159,11 +180,3 @@ class Forecast:
 class DBManager:
     pass
 
-params = {
-    "spotId": '584204204e65fad6a77090ce',
-    "days": 1,
-    "intervalHours": 1,
-}
-
-api_client = SurflineWrapper()
-forecast_data = api_client.fetch_forecast(params)
