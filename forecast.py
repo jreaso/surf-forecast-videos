@@ -4,8 +4,9 @@ import json
 from urllib.parse import urlencode
 from utils import to_snake_case
 
-# NOTE: THE WAY `sunglight_times` IS CONFIGURED MEANS `days` MUST BE 1 IN params - fix this in representation, or force
-# days to be 1. It won't throw an error it will just only use todays sunlight times
+# Note: with current handling of `sunlight_times`, if the `days` parameter is anything other than 1 (for multi day
+# forecasts), the `sunlight_times` will just refer to the first days sunlight times.
+
 
 class SurflineWrapper:
     """
@@ -58,7 +59,8 @@ class SurflineWrapper:
             raise ValueError(f"Error: {response.status_code}\n{response.reason}")
         return json.loads(response.text)
 
-    def _process_responses(self, response_data: dict, spot_id: str) -> dict:
+    @staticmethod
+    def _process_responses(response_data: dict, spot_id: str) -> dict:
         """
         Process and refactor the response data from Surfline's API.
 
@@ -129,6 +131,7 @@ class SurflineWrapper:
 
         return forecast_data
 
+
 class Forecast:
     """
     A class for forecast objects.
@@ -142,10 +145,6 @@ class Forecast:
 
         Attributes:
             data (dict): The input forecast data.
-            spot_id (int): The Surfline spot ID used for the forecast.
-            utc_offset (int): The UTC offset for the forecast.
-            timestamps (list): List of timestamps from the 'surf' data which is used as the timestamps we have forecast
-            data for.
         """
         self.data = data
 
@@ -153,7 +152,6 @@ class Forecast:
         self.spot_id = self.data['meta']['spot_id']
         self.utc_offset = self.data['meta']['utc_offset']
         self.timestamps = [entry["timestamp"] for entry in self.data['surf']]
-
 
     def flatten(self) -> list:
         """
@@ -185,8 +183,7 @@ class Forecast:
         for d in flattened_data:
             d['is_light'] = 1 if sunrise <= d['timestamp'] <= sunset else 0
 
-        self.flat_data = flattened_data
-        return self.flat_data
+        return flattened_data
 
     def to_dataframe(self) -> pd.DataFrame:
         """
