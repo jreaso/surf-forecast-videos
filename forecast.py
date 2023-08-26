@@ -3,6 +3,7 @@ import pandas as pd
 import json
 from urllib.parse import urlencode
 from utils import to_snake_case
+from datetime import datetime
 
 # Note: with current handling of `sunlight_times`, if the `days` parameter is anything other than 1 (for multi day
 # forecasts), the `sunlight_times` will just refer to the first days sunlight times.
@@ -74,9 +75,12 @@ class SurflineWrapper:
 
         # Wave (Surf and Swells)
         for wave_obs in response_data['wave']['data']['wave']:
+            # convert timestamp to a datetime object
+            timestamp = datetime.fromtimestamp(wave_obs['timestamp'])
+
             # Surf
             forecast_data['surf'].append({
-                'timestamp': wave_obs['timestamp'],
+                'timestamp': timestamp,
                 **{
                     to_snake_case(key): wave_obs['surf'][key]
                     for key in ('min', 'max', 'optimalScore', 'humanRelation')
@@ -89,7 +93,7 @@ class SurflineWrapper:
 
             # Swell - flatten the swells into lists
             forecast_data['swell'].append({
-                'timestamp': wave_obs['timestamp'],
+                'timestamp': timestamp,
                 **{
                     to_snake_case(key): [wave_obs['swells'][i][key]
                                          for i in range(len(wave_obs['swells']))]
@@ -99,7 +103,7 @@ class SurflineWrapper:
 
             # Forecast Probability
             forecast_data['forecast'].append({
-                'timestamp': wave_obs['timestamp'],
+                'timestamp': timestamp,
                 'probability': wave_obs['probability']
             })
 
@@ -110,13 +114,16 @@ class SurflineWrapper:
             ('weather', 'weather', ('timestamp', 'temperature', 'condition', 'pressure'))
         ):
             for obs in response_data[key]['data'][key]:
+                # convert timestamp to a datetime
+                timestamp = datetime.fromtimestamp(obs['timestamp'])
                 forecast_data[new_key].append({
-                    to_snake_case(attr): obs[attr] for attr in attributes
+                    to_snake_case(attr): (obs[attr] if attr != 'timestamp' else timestamp) for attr in attributes
                 })
 
         # Sunlight Times
         forecast_data['sunlight_times'] = {
-            key: response_data['weather']['data']['sunlightTimes'][0][key]
+            # convert to datetime objects
+            key: datetime.fromtimestamp(response_data['weather']['data']['sunlightTimes'][0][key])
             for key in ('midnight', 'dawn', 'sunrise', 'sunset', 'dusk')
         }
 
@@ -180,12 +187,7 @@ class Forecast:
 
         :return: The DataFrame representation of the forecast data.
         """
-        df = pd.DataFrame(self.flatten())
-
-        # convert the timestamp to a pandas datetime object
-        df['timestamp'] = pd.to_datetime(df['timestamp'], unit='s', utc=True)
-
-        return df
+        return pd.DataFrame(self.flatten())
 
     def to_json(self) -> str:
         """

@@ -8,7 +8,11 @@ params = {
 }
 api_client = SurflineWrapper()
 forecast_data = api_client.fetch_forecast(params)
+#print(forecast_data)
 forecast = Forecast(forecast_data)
+#print(forecast)
+
+#print(forecast.to_dataframe().head())
 
 db_client = DBManager('test')
 
