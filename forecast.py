@@ -153,6 +153,9 @@ class Forecast:
         self.utc_offset = self.data['meta']['utc_offset']
         self.timestamps = [entry["timestamp"] for entry in self.data['surf']]
 
+    def __repr__(self):
+        return f"Forecast Object : (spot_id : {self.spot_id}, timestamps : {self.timestamps})"
+
     def flatten(self) -> list:
         """
         Flatten the forecast data ready to be converted to a dataframe or stored into a database.
