@@ -35,6 +35,9 @@ class DBManager:
         return all(table in db_tables for table in tables)
 
     def create_tables(self) -> None:
+        """
+        Create the required tables for the database if they do not (all) exist.
+        """
         # noinspection SqlDialectInspection,SqlNoDataSourceInspection
         create_tables_query = """
             CREATE TABLE IF NOT EXISTS forecasts (
@@ -122,6 +125,12 @@ class DBManager:
         self.cursor.execute(create_tables_query)
 
     def insert_forecast(self, forecast: list):
+        """
+        Insert forecast data into the database from a forecast object.
+
+        Args:
+            forecast (list): List of forecast data entries as dictionaries.
+        """
         for forecast_entry in forecast:
             spot_id = forecast_entry['spot_id']
             timestamp = forecast_entry['timestamp']
@@ -139,6 +148,12 @@ class DBManager:
             self.conn.commit()
 
     def _insert_surf_spot_if_not_exists(self, spot_id: str) -> None:
+        """
+        Insert a surf spot into the surf_spots table if it doesn't already exist. This will not add the spot name.
+
+        Args:
+            spot_id (str): The ID of the surf spot.
+        """
         # noinspection SqlDialectInspection,SqlNoDataSourceInspection
         select_query = "SELECT spot_id FROM surf_spots WHERE spot_id = ?"
         existing_spot = self.cursor.execute(select_query, (spot_id,)).fetchone()
@@ -149,6 +164,12 @@ class DBManager:
             self.cursor.execute(insert_query, (spot_id,))
 
     def _insert_into_forecasts_table(self, forecast_entry: dict) -> None:
+        """
+        Insert forecast data (except swells data) into the forecasts table.
+
+        Args:
+            forecast_entry (dict): A dictionary containing a single instance of forecast data.
+        """
         columns = [
             'spot_id', 'forecast_timestamp', 'utc_offset', 'surf_min', 'surf_max',
             'surf_optimal_score', 'surf_human_relation', 'surf_raw_min', 'surf_raw_max',
@@ -166,6 +187,12 @@ class DBManager:
         self.cursor.execute(insert_query, values)
 
     def _insert_into_forecast_swells_table(self, forecast_entry: dict) -> None:
+        """
+        Insert forecast swell data into the forecast_swells table.
+
+        Args:
+            forecast_entry (dict): A dictionary containing a single instance of forecast data.
+        """
         n = len(forecast_entry['swell_height'])
 
         columns = ('spot_id', 'forecast_timestamp', 'swell', 'height', 'period', 'impact', 'power', 'direction',
@@ -189,14 +216,26 @@ class DBManager:
         self.cursor.executemany(insert_query, values)
 
     def insert_surf_spot(self, surf_spot: tuple) -> None:
+        """
+        Insert a surf spot into the surf_spots table.
+
+        Args:
+            surf_spot (tuple): A tuple containing surf spot information (spot_id, spot_name).
+        """
         # noinspection SqlDialectInspection,SqlNoDataSourceInspection
         insert_query = "INSERT INTO surf_spots (spot_id, spot_name) VALUES (?, ?)"
         self.cursor.execute(insert_query, surf_spot)
         self.conn.commit()
 
     def insert_cam_footage(self, cam_footage):
-        # inserts cam footage
+        """
+        INCOMPLETE
+        Insert cam footage data information into the cam_footage table.
+        """
         pass
 
     def close_connection(self):
+        """
+        Close the database connection.
+        """
         self.conn.close()
