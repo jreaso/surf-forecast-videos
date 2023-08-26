@@ -183,7 +183,7 @@ class DBManager:
         values = [forecast_entry[key] for key in keys]
 
         # noinspection SqlDialectInspection,SqlNoDataSourceInspection
-        insert_query = f"INSERT INTO forecasts ({', '.join(columns)}) VALUES ({', '.join(['?'] * len(keys))})"
+        insert_query = f"INSERT OR REPLACE INTO forecasts ({', '.join(columns)}) VALUES ({', '.join(['?'] * len(keys))})"
         self.cursor.execute(insert_query, values)
 
     def _insert_into_forecast_swells_table(self, forecast_entry: dict) -> None:
@@ -212,7 +212,7 @@ class DBManager:
         )
 
         # noinspection SqlDialectInspection,SqlNoDataSourceInspection
-        insert_query = f"INSERT INTO forecast_swells ({', '.join(columns)}) VALUES ({', '.join(['?'] * len(columns))})"
+        insert_query = f"INSERT OR REPLACE INTO forecast_swells ({', '.join(columns)}) VALUES ({', '.join(['?'] * len(columns))})"
         self.cursor.executemany(insert_query, values)
 
     def insert_surf_spot(self, surf_spot: tuple) -> None:
