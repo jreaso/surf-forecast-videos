@@ -20,6 +20,7 @@ We also store forecast data only for another spot. No videos are stored due to i
 ## Files
 
 - `forecast.py` is based on the `pysurfline` package and has a `SurflineWrapper` object which can be used to fetch the forecast for a spot and then the `Forecast` object can store forecast object and flatten it ready for a dataframe or database.
+- `db_manager.py` has a `DBManager` object which manages creating, reading and writing to/from the database.
 
 
 ## Dataset Creation
