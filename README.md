@@ -19,8 +19,7 @@ We also store forecast data only for another spot. No videos are stored due to i
 
 ## Files
 
-- `surfline_api.py` is based on the `pysurfline` package and has a `Forecast` object which can be used to fetch the forecast for a spot and return a `JSON` file or a dataframe.
-- `forecast_db_handler.py` interfaces with the database to save forecasts to it.
+- `forecast.py` is based on the `pysurfline` package and has a `SurflineWrapper` object which can be used to fetch the forecast for a spot and then the `Forecast` object can store forecast object and flatten it ready for a dataframe or database.
 
 
 ## Dataset Creation
