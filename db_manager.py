@@ -1,5 +1,4 @@
 import sqlite3
-from forecast import Forecast
 
 
 class DBManager:
@@ -18,6 +17,8 @@ class DBManager:
 
         if not self._check_schema():
             self.create_tables()
+
+        self.log = []
 
     def _check_schema(self) -> bool:
         """
@@ -123,6 +124,9 @@ class DBManager:
             );
         """
         self.cursor.execute(create_tables_query)
+        self.conn.commit()
+
+        self.log.append('created tables')
 
     def insert_forecast(self, forecast: list):
         """
@@ -146,6 +150,7 @@ class DBManager:
 
             # Commit the transaction
             self.conn.commit()
+            self.log.append(f'committed forecast insert ({timestamp}) transaction')
 
     def _insert_surf_spot_if_not_exists(self, spot_id: str) -> None:
         """
@@ -162,6 +167,8 @@ class DBManager:
             # noinspection SqlDialectInspection,SqlNoDataSourceInspection
             insert_query = "INSERT INTO surf_spots (spot_id) VALUES (?)"
             self.cursor.execute(insert_query, (spot_id,))
+
+            self.log.append(f'added missing spot {spot_id} to surf_spots')
 
     def _insert_into_forecasts_table(self, forecast_entry: dict) -> None:
         """
@@ -183,8 +190,13 @@ class DBManager:
         values = [forecast_entry[key] for key in keys]
 
         # noinspection SqlDialectInspection,SqlNoDataSourceInspection
-        insert_query = f"INSERT OR REPLACE INTO forecasts ({', '.join(columns)}) VALUES ({', '.join(['?'] * len(keys))})"
+        insert_query = (
+            f"INSERT OR REPLACE INTO forecasts ({', '.join(columns)})"
+            f" VALUES ({', '.join(['?'] * len(keys))})"
+        )
         self.cursor.execute(insert_query, values)
+
+        self.log.append('inserted data into forecasts table')
 
     def _insert_into_forecast_swells_table(self, forecast_entry: dict) -> None:
         """
@@ -212,8 +224,13 @@ class DBManager:
         )
 
         # noinspection SqlDialectInspection,SqlNoDataSourceInspection
-        insert_query = f"INSERT OR REPLACE INTO forecast_swells ({', '.join(columns)}) VALUES ({', '.join(['?'] * len(columns))})"
+        insert_query = (
+            f"INSERT OR REPLACE INTO forecast_swells ({', '.join(columns)})"
+            f" VALUES ({', '.join(['?'] * len(columns))})"
+        )
         self.cursor.executemany(insert_query, values)
+
+        self.log.append('inserted data into forecast_swells table')
 
     def insert_surf_spot(self, surf_spot: tuple) -> None:
         """
@@ -227,6 +244,8 @@ class DBManager:
         self.cursor.execute(insert_query, surf_spot)
         self.conn.commit()
 
+        self.log.append('inserted surf spot to surf_spots table and committed transaction')
+
     def insert_cam_footage(self, cam_footage):
         """
         INCOMPLETE
@@ -239,3 +258,5 @@ class DBManager:
         Close the database connection.
         """
         self.conn.close()
+
+        self.log.append('closed connection')
