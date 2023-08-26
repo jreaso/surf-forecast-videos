@@ -15,10 +15,10 @@ class DBManager:
         self.conn.execute("PRAGMA foreign_keys = ON;")
         self.cursor = self.conn.cursor()
 
+        self.log = []
+
         if not self._check_schema():
             self.create_tables()
-
-        self.log = []
 
     def _check_schema(self) -> bool:
         """
@@ -40,90 +40,98 @@ class DBManager:
         Create the required tables for the database if they do not (all) exist.
         """
         # noinspection SqlDialectInspection,SqlNoDataSourceInspection
-        create_tables_query = """
+        create_table_queries = ("""
             CREATE TABLE IF NOT EXISTS forecasts (
                 -- Primary Keys
                 spot_id TEXT NOT NULL,
                 forecast_timestamp TIMESTAMP NOT NULL,
-                PRIMARY KEY (spot_id, forecast_timestamp),
-                -- Foreign Key
-                FOREIGN KEY (spot_id) REFERENCES surf_spots(spot_id),
                 -- Meta
                 utc_offset INTEGER,
                 -- Surf
-                surf_min FLOAT,
-                surf_max FLOAT,
+                surf_min REAL,
+                surf_max REAL,
                 surf_optimal_score INTEGER,
                 surf_human_relation TEXT,
-                surf_raw_min FLOAT,
-                surf_raw_max FLOAT,
+                surf_raw_min REAL,
+                surf_raw_max REAL,
                 -- Wind
-                wind_speed FLOAT,
-                wind_direction FLOAT,
+                wind_speed REAL,
+                wind_direction REAL,
                 wind_direction_type TEXT,
-                wind_gust FLOAT,
+                wind_gust REAL,
                 wind_optimal_score INTEGER,
                 -- Probability
-                forecast_probability FLOAT,
+                forecast_probability REAL,
                 -- Tide
                 tide_type TEXT,
-                tide_height FLOAT,
+                tide_height REAL,
                 -- Weather
-                weather_temperature FLOAT,
+                weather_temperature REAL,
                 weather_condition TEXT,
-                weather_pressure FLOAT,
+                weather_pressure REAL,
                 -- Sunlight
-                is_light INTEGER
-            );
-            
+                is_light INTEGER,
+                -- Primary and Foreign Keys
+                PRIMARY KEY (spot_id, forecast_timestamp),
+                FOREIGN KEY (spot_id) REFERENCES surf_spots(spot_id)
+            )
+        """,
+        """
             CREATE TABLE IF NOT EXISTS forecast_swells (
                 -- Primary Keys
                 spot_id TEXT NOT NULL,
                 forecast_timestamp TIMESTAMP NOT NULL,
                 swell INTEGER NOT NULL,
-                PRIMARY KEY (spot_id, forecast_timestamp, swell),
-                -- Foreign Keys
-                FOREIGN KEY (spot_id, forecast_timestamp) REFERENCES forecasts(spot_id, forecast_timestamp),
                 -- Values
-                height FLOAT,
-                period FLOAT,
-                impact FLOAT,
-                power FLOAT,
-                direction FLOAT,
-                direction_min FLOAT,
-                optimal_score INTEGER
-            );
-            
+                height REAL,
+                period REAL,
+                impact REAL,
+                power REAL,
+                direction REAL,
+                direction_min REAL,
+                optimal_score INTEGER,
+                -- Primary and Foreign Keys
+                PRIMARY KEY (spot_id, forecast_timestamp, swell),
+                FOREIGN KEY (spot_id, forecast_timestamp) REFERENCES forecasts(spot_id, forecast_timestamp)
+            )
+        """,
+        """ 
             CREATE TABLE IF NOT EXISTS surf_spots (
                 spot_id TEXT PRIMARY KEY,
                 spot_name TEXT
-            );
-            
+            )
+        """,
+        """
             CREATE TABLE IF NOT EXISTS surf_cams (
                 -- Primary Keys
                 spot_id TEXT NOT NULL,
                 cam_number INTEGER NOT NULL DEFAULT 1,
-                PRIMARY KEY (spot_id, cam_number),
-                -- Foreign Keys
-                FOREIGN KEY (spot_id) REFERENCES surf_spots(spot_id),
                 -- Data
-                cam_name TEXT
+                cam_name TEXT,
                 -- Add link and other info for downloading clips
-            );
-            
+                -- ...
+                -- Primary and Foreign Keys
+                PRIMARY KEY (spot_id, cam_number),
+                FOREIGN KEY (spot_id) REFERENCES surf_spots(spot_id)
+            )
+        """,
+        """
             CREATE TABLE IF NOT EXISTS cam_footage (
                 -- Primary Keys
                 spot_id TEXT NOT NULL,
                 cam_number INTEGER NOT NULL DEFAULT 1,
                 footage_timestamp TIMESTAMP NOT NULL,
-                PRIMARY KEY (spot_id, cam_number, footage_timestamp),
-                -- Foreign Keys
-                FOREIGN KEY (spot_id, cam_number) REFERENCES surf_cams(spot_id, cam_number),
                 -- Link
-                footage_link TEXT NOT NULL
-            );
-        """
-        self.cursor.execute(create_tables_query)
+                footage_link TEXT NOT NULL,
+                -- Primary and Foreign Keys
+                PRIMARY KEY (spot_id, cam_number, footage_timestamp),
+                FOREIGN KEY (spot_id, cam_number) REFERENCES surf_cams(spot_id, cam_number)
+            )
+        """)
+
+        for query in create_table_queries:
+            self.cursor.execute(query)
+
         self.conn.commit()
 
         self.log.append('created tables')
@@ -260,3 +268,5 @@ class DBManager:
         self.conn.close()
 
         self.log.append('closed connection')
+
+db_client = DBManager('test')
