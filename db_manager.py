@@ -223,7 +223,7 @@ class DBManager:
             surf_spot (tuple): A tuple containing surf spot information (spot_id, spot_name).
         """
         # noinspection SqlDialectInspection,SqlNoDataSourceInspection
-        insert_query = "INSERT INTO surf_spots (spot_id, spot_name) VALUES (?, ?)"
+        insert_query = "INSERT OR REPLACE INTO surf_spots (spot_id, spot_name) VALUES (?, ?)"
         self.cursor.execute(insert_query, surf_spot)
         self.conn.commit()
 
