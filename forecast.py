@@ -130,7 +130,23 @@ class SurflineWrapper:
         return forecast_data
 
 class Forecast:
+    """
+    A class for forecast objects.
+    """
     def __init__(self, data: dict):
+        """
+        Initialize the Forecast object.
+
+        Parameters:
+            data (dict): A dictionary containing forecast data.
+
+        Attributes:
+            data (dict): The input forecast data.
+            spot_id (int): The Surfline spot ID used for the forecast.
+            utc_offset (int): The UTC offset for the forecast.
+            timestamps (list): List of timestamps from the 'surf' data which is used as the timestamps we have forecast
+            data for.
+        """
         self.data = data
 
         # Meta Attributes
@@ -140,6 +156,12 @@ class Forecast:
 
 
     def flatten(self) -> list:
+        """
+        Flatten the forecast data ready to be converted to a dataframe or stored into a database.
+
+        Returns:
+            list: A list of flattened dictionaries.
+        """
         # Initialize a list of dictionaries with timestamps and meta keys
         flattened_data = [{'spot_id': self.spot_id,
                            'timestamp': timestamp,
@@ -166,7 +188,13 @@ class Forecast:
         self.flat_data = flattened_data
         return self.flat_data
 
-    def to_dataframe(self, attr=None) -> pd.DataFrame:
+    def to_dataframe(self) -> pd.DataFrame:
+        """
+        Convert the forecast data to a DataFrame.
+
+        Returns:
+            pd.DataFrame: The DataFrame representation of the forecast data.
+        """
         df = pd.DataFrame(self.flatten())
 
         # convert the timestamp to a pandas datetime object
@@ -175,6 +203,12 @@ class Forecast:
         return df
 
     def to_json(self) -> str:
+        """
+        Convert the forecast data to a JSON string.
+
+        Returns:
+            str: The JSON string representation of the forecast data.
+        """
         return json.dumps(self.data, indent=4)
 
 class DBManager:
