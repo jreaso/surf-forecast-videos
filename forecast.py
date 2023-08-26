@@ -6,7 +6,8 @@ from utils import to_snake_case
 from datetime import datetime
 
 # Note: with current handling of `sunlight_times`, if the `days` parameter is anything other than 1 (for multi day
-# forecasts), the `sunlight_times` will just refer to the first days sunlight times.
+# forecasts), the `sunlight_times` will just refer to the first days sunlight times, this will also affect the
+# `is_light` attribute when flattened.
 
 
 class SurflineWrapper:
