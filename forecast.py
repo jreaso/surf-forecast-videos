@@ -17,24 +17,20 @@ class SurflineWrapper:
     def __init__(self) -> None:
         """
         Initialize a new instance of SurflineWrapper.
-
-        This constructor initializes a session to be used for making API requests.
         """
+        # initializes a session to be used for making API requests.
         self.session = requests.Session()
 
-    def fetch_forecast(self, params: dict):
+    def fetch_forecast(self, params: dict) -> dict:
         """
         Fetch the forecast data from the Surfline API.
 
         This function fetches forecast data from the Surfline API based on the provided parameters, and includes
         processing into a more consistent/usable format.
 
-        Args:
-            params (dict): Parameters to be included in the API request.
-
-        Returns:
-            dict: A dictionary containing processed surf forecast data with various categories
-                  such as 'meta', 'surf', 'swell', 'wind', 'tide', 'weather', and 'sunlight_times'.
+        :param params: Parameters dictionary to be included in the API request.
+        :return: A dictionary containing processed surf forecast data with various categories such as 'meta', 'surf',
+        'swell', 'wind', 'tide', 'weather', and 'sunlight_times'.
         """
         response_data = {}
         for attr in ('', 'wave', 'wind', 'tides', 'weather'):
@@ -46,12 +42,9 @@ class SurflineWrapper:
         """
         Fetch a specific forecast attribute response from the Surfline API.
 
-        Args:
-            params (dict): Parameters to be included in the API request.
-            forecast_attr (str): The attribute to fetch data for.
-
-        Returns:
-            dict: The response data from the specified forecast attribute.
+        :param params: Parameters to be included in the API request.
+        :param forecast_attr: The attribute to fetch data for.
+        :return:
         """
         url = f"{self.BASE_URL}{forecast_attr}?{urlencode(params)}"
         response = requests.get(url)
@@ -67,12 +60,10 @@ class SurflineWrapper:
         This function takes the responses data from Surfline's API and refactors the structure to flatten it out and
         change naming conventions to be snake case as well as changing particular names for consistency.
 
-        Args:
-            response_data (dict): The raw responses data from Surfline's API.
-
-        Returns:
-            dict: A dictionary containing processed surf forecast data with various categories
-                  such as 'meta', 'surf', 'swell', 'wind', 'tide', 'weather', and 'sunlight_times'.
+        :param response_data: The raw responses data from Surfline's API.
+        :param spot_id: The spot id in the request.
+        :return: A dictionary containing processed surf forecast data with various categories such as 'meta', 'surf',
+        'swell', 'wind', 'tide', 'weather', and 'sunlight_times'.
         """
         # Initialize forecast_data dictionary with meta data filled
         forecast_data = {'meta': {
@@ -140,11 +131,7 @@ class Forecast:
         """
         Initialize the Forecast object.
 
-        Parameters:
-            data (dict): A dictionary containing forecast data.
-
-        Attributes:
-            data (dict): The input forecast data.
+        :param data: A dictionary containing forecast data.
         """
         self.data = data
 
@@ -153,15 +140,14 @@ class Forecast:
         self.utc_offset = self.data['meta']['utc_offset']
         self.timestamps = [entry["timestamp"] for entry in self.data['surf']]
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"Forecast Object : (spot_id : {self.spot_id}, timestamps : {self.timestamps})"
 
     def flatten(self) -> list:
         """
         Flatten the forecast data ready to be converted to a dataframe or stored into a database.
 
-        Returns:
-            list: A list of flattened dictionaries.
+        :return: A list of flattened dictionaries.
         """
         # Initialize a list of dictionaries with timestamps and meta keys
         flattened_data = [{'spot_id': self.spot_id,
@@ -192,8 +178,7 @@ class Forecast:
         """
         Convert the forecast data to a DataFrame.
 
-        Returns:
-            pd.DataFrame: The DataFrame representation of the forecast data.
+        :return: The DataFrame representation of the forecast data.
         """
         df = pd.DataFrame(self.flatten())
 
@@ -206,7 +191,6 @@ class Forecast:
         """
         Convert the forecast data to a JSON string.
 
-        Returns:
-            str: The JSON string representation of the forecast data.
+        :return: The JSON string representation of the forecast data.
         """
         return json.dumps(self.data, indent=4)

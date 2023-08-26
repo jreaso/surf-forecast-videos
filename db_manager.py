@@ -3,13 +3,15 @@ from forecast import Forecast
 
 
 class DBManager:
+    """
+    Manages creating, reading and writing to/from the db.
+    """
     def __init__(self, db_name: str) -> None:
         """
         Initialize the DBManager with the given database name, sets parameter for foreign keys to be used and checks
         database has the correct schema.
 
-        Args:
-            db_name (str): The name of the SQLite database.
+        :param db_name: The name of the SQLite database.
         """
         self.db_name = db_name
         self.conn = sqlite3.connect(db_name)
@@ -25,8 +27,7 @@ class DBManager:
         """
         Check if the required tables exist in the database schema.
 
-        Returns:
-            bool: True if all required tables exist, False otherwise.
+        :return: True if all required tables exist, False otherwise.
         """
         tables = ("forecasts", "forecast_swells", "surf_spots", "surf_cams", "cam_footage")
 
@@ -140,6 +141,7 @@ class DBManager:
     def insert_forecast(self, forecast: Forecast) -> None:
         """
         Insert forecast data into the database from a forecast object.
+
         :param forecast: forecast object
         """
         for forecast_entry in forecast.flatten():
@@ -163,8 +165,7 @@ class DBManager:
         """
         Insert a surf spot into the surf_spots table if it doesn't already exist. This will not add the spot name.
 
-        Args:
-            spot_id (str): The ID of the surf spot.
+        :param spot_id: The ID of the surf spot.
         """
         # noinspection SqlDialectInspection,SqlNoDataSourceInspection
         select_query = "SELECT spot_id FROM surf_spots WHERE spot_id = ?"
@@ -181,8 +182,7 @@ class DBManager:
         """
         Insert forecast data (except swells data) into the forecasts table.
 
-        Args:
-            forecast_entry (dict): A dictionary containing a single instance of forecast data.
+        :param forecast_entry: A dictionary containing a single instance of forecast data.
         """
         columns = [
             'spot_id', 'forecast_timestamp', 'utc_offset', 'surf_min', 'surf_max',
@@ -209,8 +209,7 @@ class DBManager:
         """
         Insert forecast swell data into the forecast_swells table.
 
-        Args:
-            forecast_entry (dict): A dictionary containing a single instance of forecast data.
+        :param forecast_entry: A dictionary containing a single instance of forecast data.
         """
         n = len(forecast_entry['swell_height'])
 
@@ -243,8 +242,7 @@ class DBManager:
         """
         Insert a surf spot into the surf_spots table.
 
-        Args:
-            surf_spot (tuple): A tuple containing surf spot information (spot_id, spot_name).
+        :param surf_spot: A tuple containing surf spot information (spot_id, spot_name).
         """
         # noinspection SqlDialectInspection,SqlNoDataSourceInspection
         insert_query = "INSERT OR REPLACE INTO surf_spots (spot_id, spot_name) VALUES (?, ?)"
@@ -260,7 +258,7 @@ class DBManager:
         """
         pass
 
-    def close_connection(self):
+    def close_connection(self) -> None:
         """
         Close the database connection.
         """
