@@ -6,4 +6,4 @@ __pycache__/
 notebook-tests.ipynb
 
 # Ignore test database
-test.db
+test
