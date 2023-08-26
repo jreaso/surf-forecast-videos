@@ -1,4 +1,5 @@
 import sqlite3
+from forecast import Forecast, SurflineWrapper
 
 
 class DBManager:
@@ -136,14 +137,12 @@ class DBManager:
 
         self.log.append('created tables')
 
-    def insert_forecast(self, forecast: list):
+    def insert_forecast(self, forecast: Forecast) -> None:
         """
         Insert forecast data into the database from a forecast object.
-
-        Args:
-            forecast (list): List of forecast data entries as dictionaries.
+        :param forecast: forecast object
         """
-        for forecast_entry in forecast:
+        for forecast_entry in forecast.flatten():
             spot_id = forecast_entry['spot_id']
             timestamp = forecast_entry['timestamp']
 
@@ -195,7 +194,7 @@ class DBManager:
         # `forecast_timestamp` column (in forecasts table) is equivalent to `timestamp` key (in forecast dict)
         keys = [col if col != 'forecast_timestamp' else 'timestamp' for col in columns]
 
-        values = [forecast_entry[key] for key in keys]
+        values = [forecast_entry.get(key, None) for key in keys]
 
         # noinspection SqlDialectInspection,SqlNoDataSourceInspection
         insert_query = (
@@ -269,4 +268,16 @@ class DBManager:
 
         self.log.append('closed connection')
 
+
+params = {
+    "spotId": '584204204e65fad6a77090ce',
+    "days": 2,
+    "intervalHours": 1,
+}
+api_client = SurflineWrapper()
+forecast_data = api_client.fetch_forecast(params)
+forecast = Forecast(forecast_data)
+
 db_client = DBManager('test')
+db_client.insert_forecast(forecast)
+db_client.close_connection()
