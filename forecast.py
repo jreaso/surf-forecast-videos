@@ -10,7 +10,7 @@ class SurflineWrapper:
     """
     BASE_URL = "https://services.surfline.com/kbyg/spots/forecasts/"
 
-    def __init__(self):
+    def __init__(self) -> None:
         """
         Initialize a new instance of SurflineWrapper.
 
@@ -36,7 +36,7 @@ class SurflineWrapper:
         for attr in ('', 'wave', 'wind', 'tides', 'weather'):
             response_data[attr] = self._fetch_attr_response(params, attr)
 
-        return self._process_response(response_data)
+        return self._process_responses(response_data, params['spotId'])
 
     def _fetch_attr_response(self, params: dict, forecast_attr: str) -> dict:
         """
@@ -55,7 +55,7 @@ class SurflineWrapper:
             raise ValueError(f"Error: {response.status_code}\n{response.reason}")
         return json.loads(response.text)
 
-    def _process_response(self, response_data: dict) -> dict:
+    def _process_responses(self, response_data: dict, spot_id: str) -> dict:
         """
         Process and refactor the response data from Surfline's API.
 
@@ -71,10 +71,10 @@ class SurflineWrapper:
         """
         # Initialize forecast_data dictionary with meta data filled
         forecast_data = {'meta': {
-            'spot_id': response_data['']['spotId'],
+            'spot_id': spot_id,
             'utc_offset': response_data['']['utcOffset'],
             'units': response_data['']['units']
-        }, 'surf': [], 'swells': [], 'wind': [], 'tide': [], 'weather': []}
+        }, 'surf': [], 'swell': [], 'wind': [], 'tide': [], 'weather': [], 'probability': []}
 
         # Wave (Surf and Swells)
         for wave_obs in response_data['wave']['data']['wave']:
@@ -93,13 +93,18 @@ class SurflineWrapper:
 
             # Swell - flatten the swells into lists
             forecast_data['swell'].append({
-                'timestamp': [entry['timestamp'] for entry in forecast_data['swells']],
+                'timestamp': wave_obs['timestamp'],
                 **{
-                    to_snake_case(key): [[entry['swells'][i][key]
-                                          for i in range(len(forecast_data['swells'][0]['swells']))]
-                                         for entry in forecast_data['swells']]
-                    for key in forecast_data['swells'][0]['swells'][0]
+                    to_snake_case(key): [wave_obs['swells'][i][key]
+                                         for i in range(len(wave_obs['swells']))]
+                    for key in wave_obs['swells'][0]
                 }
+            })
+
+            # Forecast Probability
+            forecast_data['probability'].append({
+                'timestamp': wave_obs['timestamp'],
+                'probability': wave_obs['probability']
             })
 
         # Wind, Tide and Weather
@@ -153,3 +158,12 @@ class Forecast:
 
 class DBManager:
     pass
+
+params = {
+    "spotId": '584204204e65fad6a77090ce',
+    "days": 1,
+    "intervalHours": 1,
+}
+
+api_client = SurflineWrapper()
+forecast_data = api_client.fetch_forecast(params)
