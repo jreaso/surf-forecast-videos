@@ -210,7 +210,3 @@ class Forecast:
             str: The JSON string representation of the forecast data.
         """
         return json.dumps(self.data, indent=4)
-
-class DBManager:
-    pass
-
