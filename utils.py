@@ -10,5 +10,4 @@ def to_snake_case(text: str) -> str:
     Returns:
         str: The input string converted to snake_case.
     """
-    snake_case = re.sub(r'(.)([A-Z][a-z]+)|([a-z0-9])([A-Z])', r'\1\3_\2\4', text)
-    return snake_case.lower()
+    return re.sub(r'(.)([A-Z][a-z]+)|([a-z0-9])([A-Z])', r'\1\3_\2\4', text).lower()
