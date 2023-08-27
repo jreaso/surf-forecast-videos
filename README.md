@@ -17,6 +17,11 @@ We also store forecast data only for another spot. No videos are stored due to i
 
 - **Fresh West**, Pembrokeshire, UK. Where the Welsh Nationals are held and a particularly consistent spot in Pembrokeshire.
 
+## Requirements
+
+- `FFMPEG`
+- Linux or Mac OS. Will not work on windows as modifies video creation date with `os.utime()`.
+
 ## Files
 
 - `forecast.py` is based on the `pysurfline` package and has a `SurflineWrapper` object which can be used to fetch the forecast for a spot and then the `Forecast` object can store forecast object and flatten it ready for a dataframe or database.
