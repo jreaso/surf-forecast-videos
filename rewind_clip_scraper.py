@@ -3,15 +3,14 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
-import undetected_chromedriver as uc  # avoids cloudflare protections
-import time
+import undetected_chromedriver as uc  # avoids cloudflare bot preventions
 
 
 # Initialize Driver
 options = uc.ChromeOptions()
 # uncomment these lines to go headless
-# options.headless = True
-# options.add_argument('--headless')
+#options.headless = True
+#options.add_argument('--headless')
 driver = uc.Chrome(options=options)
 
 wait = WebDriverWait(driver, 20)  # wait instance to wait for elements to load
