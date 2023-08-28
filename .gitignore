@@ -10,3 +10,9 @@ notebook-tests.ipynb
 
 # Ignore test database
 test
+
+# Ignore config.json file with credentials
+config.json
+
+# Chrome Drive Log
+geckodriver.log

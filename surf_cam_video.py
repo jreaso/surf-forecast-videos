@@ -9,6 +9,10 @@ import ffmpeg
 from datetime import datetime
 
 
+rewind_page_url = 'https://www.surfline.com/surfdata/video-rewind/video_rewind.cfm?id=7128' #uses legacy id
+
+
+
 
 # DOWNLOAD VIDEO (Placeholder)
 
