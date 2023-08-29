@@ -6,13 +6,12 @@ from selenium.webdriver.support.ui import Select
 import undetected_chromedriver as uc  # avoids cloudflare bot preventions
 
 
-def fetch_rewind_links(spot_id: str, spot_name: str) -> list:
+def fetch_rewind_links(spot_rewind_extension: str) -> list:
     """
     Semi-automated (may require CAPTCHA solved by human) Selenium based web scraper to log in to surfline and parse the
     rewinds page for a surf spot, saving the urls to the videos on the cdn server.
 
-    :param spot_id: id for the surf spot to scrape (not legacy id).
-    :param spot_name: the spot name as it appears in url. e.g. jeffreys-bay-j-bay-, or whitesands
+    :param spot_rewind_extension: extension on the base url for the rewind clips page for a certain surf spot.
     :return: rewind_clip_urls, a list of urls with links to the cdn server for downloading clips.
     """
     # Initialize Selenium Driver
@@ -54,7 +53,7 @@ def fetch_rewind_links(spot_id: str, spot_name: str) -> list:
     print("Logged In")
 
     # Redirect to Rewinds Page
-    rewind_url = f'https://www.surfline.com/surf-cams/{spot_name}/{spot_id}'
+    rewind_url = f'https://www.surfline.com/surf-cams/{spot_rewind_extension}'
     driver.get(rewind_url)
 
     wait.until(EC.presence_of_element_located((By.ID, "sl-rewind-player")))  # wait until page loaded
@@ -96,7 +95,6 @@ def fetch_rewind_links(spot_id: str, spot_name: str) -> list:
             link = element.find_element(By.TAG_NAME, "a").get_attribute("href")
 
             rewind_clip_urls.append(link)  # append link
-            print(link)
 
             # wait until page loaded fully before moving on
             wait.until(EC.visibility_of_element_located((By.ID, "sl-rewind-player")))
@@ -104,8 +102,3 @@ def fetch_rewind_links(spot_id: str, spot_name: str) -> list:
     driver.quit()
 
     return rewind_clip_urls
-
-
-
-# rewind_url = 'https://www.surfline.com/surf-cams/jeffreys-bay-j-bay-/5f7ca72ba43acae7a74a4878'
-# rewind_url = 'https://www.surfline.com/surf-cams/whitesands/60dc2e530cee140bde3d34f3'
