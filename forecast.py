@@ -2,17 +2,14 @@ import requests
 import pandas as pd
 import json
 from urllib.parse import urlencode
-from utils import to_snake_case
+from utils import to_snake_case, datetime_serializer
 from datetime import datetime
-
-# Note: with current handling of `sunlight_times`, if the `days` parameter is anything other than 1 (for multi day
-# forecasts), the `sunlight_times` will just refer to the first days sunlight times, this will also affect the
-# `is_light` attribute when flattened.
 
 
 class SurflineWrapper:
     """
-    A wrapper for interacting with the Surfline API to fetch forecast data.
+    A wrapper for interacting with the Surfline API to fetch forecast data, and process it into a python dictionary.
+    The naming convention does not follow Surfline's as this converts to snake_case and processes it differently.
     """
     BASE_URL = "https://services.surfline.com/kbyg/spots/forecasts/"
 
@@ -28,7 +25,8 @@ class SurflineWrapper:
         Fetch the forecast data from the Surfline API.
 
         This function fetches forecast data from the Surfline API based on the provided parameters, and includes
-        processing into a more consistent/usable format.
+        processing into a more consistent/usable format. This API call cannot use Surfline pro, so is limited to up to
+        five days as a parameter.
 
         :param params: Parameters dictionary to be included in the API request.
         :return: A dictionary containing processed surf forecast data with various categories such as 'meta', 'surf',
@@ -122,11 +120,11 @@ class SurflineWrapper:
                 })
 
         # Sunlight Times
-        forecast_data['sunlight_times'] = {
+        forecast_data['sunlight_times'] = [{
             # convert to datetime objects
-            key: datetime.fromtimestamp(response_data['weather']['data']['sunlightTimes'][0][key])
+            key: datetime.fromtimestamp(response_data['weather']['data']['sunlightTimes'][i][key])
             for key in ('midnight', 'dawn', 'sunrise', 'sunset', 'dusk')
-        }
+        } for i in range(len(response_data['weather']['data']['sunlightTimes']))]
 
         return forecast_data
 
@@ -173,14 +171,18 @@ class Forecast:
                 else:
                     raise ValueError(f"No {attr} attribute in forecast data")
 
-        # add an extra key `is_light` in place of `sunlight_times`
-        sunrise = self.data['sunlight_times']['sunrise']
-        sunset = self.data['sunlight_times']['sunset']
-
-        for d in flattened_data:
-            d['is_light'] = 1 if sunrise <= d['timestamp'] <= sunset else 0
-
         return flattened_data
+
+    def sunlight_times(self, add_date=True):
+        sunlight_times = self.data['sunlight_times']
+
+        if add_date:
+            for i, entry in enumerate(self.data['sunlight_times']):
+                sunrise_str = entry["sunrise"]
+                date = datetime.strptime(sunrise_str, "%Y-%m-%dT%H:%M:%S").date()
+                sunlight_times[i]["date"] = date.isoformat()
+
+        return sunlight_times
 
     def to_dataframe(self) -> pd.DataFrame:
         """
@@ -196,4 +198,4 @@ class Forecast:
 
         :return: The JSON string representation of the forecast data.
         """
-        return json.dumps(self.data, indent=4)
+        return json.dumps(self.data, indent=4, default=datetime_serializer)
