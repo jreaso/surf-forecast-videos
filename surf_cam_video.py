@@ -1,59 +1,52 @@
-# 1. Fetch a clip for a spot, and datetime
-# 2. Process clip: edit framerate and cut to 60s
-# 3. Edit clip metadata (creation date etc)
-# 4. Save to file
-
 import requests
 import os
 import ffmpeg
 from datetime import datetime
 
-
-rewind_page_url = 'https://www.surfline.com/surfdata/video-rewind/video_rewind.cfm?id=7128' #uses legacy id
-
-
-
-
-# DOWNLOAD VIDEO (Placeholder)
-
-# URL of the video to download
-video_url = "https://camrewinds.cdn-surfline.com/live/za-jeffreysbay.stream.20230827T151248661.mp4"
-
-# Directory to save the processed videos
 output_directory = "videos"
-# Create the output directory if it doesn't exist
-os.makedirs(output_directory, exist_ok=True)
-
-# Download the video
-response = requests.get(video_url, stream=True)
-video_filename = os.path.join(output_directory, "original_video.mp4")
-
-with open(video_filename, "wb") as f:
-    for chunk in response.iter_content(chunk_size=8192):
-        f.write(chunk)
 
 
-# PROCESS VIDEO - using ffmpeg
+def download_and_process_video(video_url: str, spot_id: str) -> str:
+    """
+    This function downloads a video clip from provided url, cuts the video down to 60s, compresses it and saves it to
+    the output directory with appropriate naming. It also changes the creation date of the file.
 
-processed_filename = os.path.join(output_directory, "processed_video.mp4")
+    :param video_url: link to cdn server where rewind clips are hosted.
+    :param spot_id: surf spot id, used in file naming.
+    :return: filepath of processed video.
+    """
+    # Directory to save the processed videos
+    os.makedirs(output_directory, exist_ok=True)  # Create the output directory if it doesn't exist
 
-#compression, 24 is default
-crf_value = 28  # You can adjust this value higher for more compression
+    # Download the video
+    response = requests.get(video_url, stream=True)
 
-# Process the video with modified metadata
-ffmpeg.input(video_filename).output(processed_filename, crf=crf_value, t=60, y=None, loglevel="error").run()
+    source_filename = video_url.split("/")[-1]
+    video_filename = f"TEMP_{source_filename}"
+    video_file_path = os.path.join(output_directory, video_filename)
 
-file_path = "/Users/jamiereason/programming-projects/time-machine-surf-cam/videos/processed_video.mp4"
-new_creation_time = "2008-08-01 12:00:00"
+    with open(video_file_path, "wb") as f:
+        for chunk in response.iter_content(chunk_size=8192):
+            f.write(chunk)
 
-# Convert the new_creation_time to a datetime object
-new_creation_time = datetime.strptime(new_creation_time, "%Y-%m-%d %H:%M:%S")
-new_access_time = new_modification_time = new_creation_time.timestamp()
+    # Parse Video Timestamp
+    video_timestamp_str = video_url.split(".")[-2]
 
-# Set access time, modification time, and creation time (not directly modifiable)
-os.utime(file_path, (new_access_time, new_modification_time))
+    # Process and save as new file
+    output_filename = f"{spot_id}_{video_timestamp_str}.mp4"
+    output_file_path = os.path.join(output_directory, output_filename)
+    crf_value = 28  # Compression rate, default is 24, higher means more compression.
 
-print("Video processing complete. Processed video with modified creation date saved at:", processed_filename)
+    # Process Video - using ffmpeg
+    ffmpeg.input(video_file_path).output(output_file_path, crf=crf_value, t=60, y=None, loglevel="error").run()
 
+    # Convert the timestamp string to a timestamp
+    video_timestamp_datetime = datetime.strptime(video_timestamp_str, "%Y%m%dT%H%M%S%f").timestamp()
 
+    # Set creation time
+    os.utime(output_file_path, (os.path.getatime(output_file_path), video_timestamp_datetime))
 
+    # Delete the original video
+    os.remove(video_file_path)
+
+    return output_file_path
