@@ -71,8 +71,6 @@ class DBManager:
                 weather_temperature REAL,
                 weather_condition TEXT,
                 weather_pressure REAL,
-                -- Sunlight
-                is_light INTEGER,
                 -- Primary and Foreign Keys
                 PRIMARY KEY (spot_id, forecast_timestamp),
                 FOREIGN KEY (spot_id) REFERENCES surf_spots(spot_id)
@@ -110,24 +108,30 @@ class DBManager:
                 cam_number INTEGER NOT NULL DEFAULT 1,
                 -- Data
                 cam_name TEXT,
-                -- Add link and other info for downloading clips
-                -- ...
+                rewind_link_extension TEXT,
                 -- Primary and Foreign Keys
                 PRIMARY KEY (spot_id, cam_number),
                 FOREIGN KEY (spot_id) REFERENCES surf_spots(spot_id)
             )
         """,
         """
-            CREATE TABLE IF NOT EXISTS cam_footage (
+            CREATE TABLE IF NOT EXISTS cam_videos (
                 -- Primary Keys
                 spot_id TEXT NOT NULL,
                 cam_number INTEGER NOT NULL DEFAULT 1,
                 footage_timestamp TIMESTAMP NOT NULL,
-                -- Link
-                footage_link TEXT NOT NULL,
+                -- Forecast
+                forecast_timestamp TEXT,
+                -- Link to CDN Server
+                download_link TEXT,
+                -- Video Location on Local Machine
+                video_storage_location TEXT,
+                -- Status for whether link is pending download,downloaded or not being downloaded
+                download_status TEXT DEFAULT Pending, -- Pending, Downloaded or Null
                 -- Primary and Foreign Keys
                 PRIMARY KEY (spot_id, cam_number, footage_timestamp),
-                FOREIGN KEY (spot_id, cam_number) REFERENCES surf_cams(spot_id, cam_number)
+                FOREIGN KEY (spot_id, cam_number) REFERENCES surf_cams(spot_id, cam_number),
+                FOREIGN KEY (spot_id, forecast_timestamp) REFERENCES forecasts(spot_id, forecast_timestamp)
             )
         """)
 
@@ -251,12 +255,107 @@ class DBManager:
 
         self.log.append('inserted surf spot to surf_spots table and committed transaction')
 
-    def insert_cam_footage(self, cam_footage):
+    def insert_surf_cam(self, surf_cam: tuple) -> None:
+        """
+        Insert a surf camera into the surf_spots table.
+
+        :param surf_cam: A tuple containing surf cam info (spot_id, cam_number, cam_name, rewind_link_extension).
+        """
+        # noinspection SqlDialectInspection,SqlNoDataSourceInspection
+        insert_query = (
+            "INSERT OR REPLACE INTO surf_cams (spot_id, cam_number, cam_name, rewind_link_extension) "
+            "VALUES (?, ?, ?, ?)"
+        )
+        self.cursor.execute(insert_query, surf_cam)
+        self.conn.commit()
+
+        self.log.append(f"inserted surf cam to surf_cams table and committed transaction")
+
+    def get_surf_cams(self) -> list:
+        """
+        Get all surf cameras in the db.
+
+        :return: list of rows in surf_cams table.
+        """
+        select_query = "SELECT spot_id, cam_number, rewind_link_extension FROM surf_cams"
+        self.cursor.execute(select_query)
+
+        surf_cam_rows = self.cursor.fetchall()
+        return surf_cam_rows
+
+    def insert_scraped_video_links(self, scraped_link_data: tuple) -> None:
+        """
+        Inserts scraped video link data into the cam_footage table.
+
+        :param scraped_link_data: A tuple containing the scraped video link information in the following order:
+            - spot_id_value (str): The identifier of the surf spot.
+            - cam_number_value (int): The number of the camera.
+            - footage_timestamp_value (datetime): The timestamp of the footage.
+            - download_link_value (str): The URL of the video download link.
+        """
+        insert_query = (
+            "INSERT INTO cam_footage (spot_id, cam_number, footage_timestamp, download_link, download_status) "
+            "VALUES (?, ?, ?, ?, 'Pending')"
+        )
+
+        self.cursor.execute(insert_query, scraped_link_data)
+        self.conn.commit()
+        self.log.append(f"inserted scraped cam footage link into cam_footage table and committed transaction")
+
+    def update_cam_video_status(self, cam_video_entry: tuple, download_status: str) -> None:
+        """
+        Update the download_status of a row in the cam_footage table.
+
+        :param cam_video_entry: A tuple containing the primary key information for the row.
+            - spot_id
+            - cam_number
+            - footage_timestamp
+        :param download_status: A string representing the new download status value.
+        """
+        update_query = """
+            UPDATE cam_footage
+            SET download_status = ?
+            WHERE spot_id = ? AND cam_number = ? AND footage_timestamp = ?
+        """
+
+        data = (download_status,) + cam_video_entry
+
+        self.cursor.execute(update_query, data)
+        self.conn.commit()
+        self.log.append(f"updated download_status column in row in cam_footage table and committed transaction")
+
+    def get_pending_video_links(self) -> list:
+        """
+        Get the primary key information of rows with download_status 'Pending'.
+
+        :return: A list of tuples, each containing the primary key information (spot_id, cam_number, footage_timestamp).
+        """
+        select_query = """
+            SELECT spot_id, cam_number, footage_timestamp
+            FROM cam_footage
+            WHERE download_status = 'Pending'
+        """
+
+        self.cursor.execute(select_query)
+        rows = self.cursor.fetchall()
+
+        return rows
+
+    def insert_downloaded_videos(self, cam_video_entry: tuple, video_storage_location: str) -> None:
         """
         INCOMPLETE
-        Insert cam footage data information into the cam_footage table.
         """
-        pass
+        update_query = """
+            UPDATE cam_footage
+            SET download_status = 'Downloaded', video_storage_location = ?
+            WHERE spot_id = ? AND cam_number = ? AND footage_timestamp = ?
+        """
+
+        data = (video_storage_location,) + cam_video_entry
+
+        self.cursor.execute(update_query, data)
+        self.conn.commit()
+        self.log.append(f"updated download_status column in row in cam_footage table and committed transaction")
 
     def close_connection(self) -> None:
         """
