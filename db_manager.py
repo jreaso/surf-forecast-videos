@@ -30,7 +30,7 @@ class DBManager:
 
         :return: True if all required tables exist, False otherwise.
         """
-        tables = ("forecasts", "forecast_swells", "surf_spots", "surf_cams", "cam_footage")
+        tables = ("forecasts", "forecast_swells", "surf_spots", "surf_cams", "cam_videos")
 
         # noinspection SqlDialectInspection,SqlNoDataSourceInspection
         table_names_query = "SELECT name FROM sqlite_master WHERE type='table'"
@@ -144,7 +144,7 @@ class DBManager:
                 -- Video Location on Local Machine
                 video_storage_location TEXT,
                 -- Status for whether link is pending download,downloaded or not being downloaded
-                download_status TEXT DEFAULT Pending, -- Pending, Downloaded or Null
+                download_status TEXT, -- Pending, Downloaded or Null
                 -- Primary and Foreign Keys
                 PRIMARY KEY (spot_id, cam_number, footage_timestamp),
                 FOREIGN KEY (spot_id, cam_number) REFERENCES surf_cams(spot_id, cam_number),
@@ -372,7 +372,7 @@ class DBManager:
 
     def update_cam_video_status(self, cam_video_entry: tuple, download_status: str) -> None:
         """
-        Update the download_status of a row in the cam_footage table.
+        Update the download_status of a row in the cam_videos table.
 
         :param cam_video_entry: A tuple containing the primary key information for the row.
             - spot_id
@@ -381,7 +381,7 @@ class DBManager:
         :param download_status: A string representing the new download status value.
         """
         update_query = """
-            UPDATE cam_footage
+            UPDATE cam_videos
             SET download_status = ?
             WHERE spot_id = ? AND cam_number = ? AND footage_timestamp = ?
         """
@@ -390,7 +390,7 @@ class DBManager:
 
         self.cursor.execute(update_query, data)
         self.conn.commit()
-        self.log.append(f"updated download_status column in row in cam_footage table and committed transaction")
+        self.log.append(f"updated download_status column in row in cam_videos table and committed transaction")
 
     def get_pending_video_links(self) -> list:
         """
@@ -400,7 +400,7 @@ class DBManager:
         """
         select_query = """
             SELECT spot_id, cam_number, footage_timestamp
-            FROM cam_footage
+            FROM cam_videos
             WHERE download_status = 'Pending'
         """
 
@@ -414,7 +414,7 @@ class DBManager:
         INCOMPLETE
         """
         update_query = """
-            UPDATE cam_footage
+            UPDATE cam_videos
             SET download_status = 'Downloaded', video_storage_location = ?
             WHERE spot_id = ? AND cam_number = ? AND footage_timestamp = ?
         """
@@ -423,7 +423,7 @@ class DBManager:
 
         self.cursor.execute(update_query, data)
         self.conn.commit()
-        self.log.append(f"updated download_status column in row in cam_footage table and committed transaction")
+        self.log.append(f"updated download_status column in row in cam_videos table and committed transaction")
 
     def close_connection(self) -> None:
         """
