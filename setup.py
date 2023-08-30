@@ -1,8 +1,6 @@
 from db_manager import DBManager
 import json
 
-tmsc_db_manager = DBManager('tmsc-testing')
-
 
 def import_surf_data_from_json(db_manager, json_file_path):
     with open(json_file_path, 'r') as json_file:
@@ -31,5 +29,8 @@ def import_surf_data_from_json(db_manager, json_file_path):
                         print(f"Inserted surf cam: {cam_name}")
 
 
+tmsc_db_manager = DBManager('tmsc-testing')
 json_data_file_path = 'surf_spots_data.json'
 import_surf_data_from_json(tmsc_db_manager, json_data_file_path)
+
+tmsc_db_manager.close_connection()
