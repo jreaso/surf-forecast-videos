@@ -161,9 +161,9 @@ class DBManager:
             # Insert forecast swells into forecast_swells table
             self._insert_into_forecast_swells_table(forecast_entry)
 
-            # Commit the transaction
-            self.conn.commit()
-            self.log.append(f'committed forecast insert ({timestamp}) transaction')
+        # Commit the transactions
+        self.conn.commit()
+        self.log.append(f'committed forecast insert transactions')
 
     def _insert_surf_spot_if_not_exists(self, spot_id: str) -> None:
         """
