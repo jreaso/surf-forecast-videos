@@ -102,3 +102,6 @@ def fetch_rewind_links(spot_rewind_extension: str) -> list:
     driver.quit()
 
     return rewind_clip_urls
+
+
+

@@ -3,10 +3,8 @@ import os
 import ffmpeg
 from datetime import datetime
 
-output_directory = "videos"
 
-
-def download_and_process_video(video_url: str, spot_id: str) -> str:
+def download_and_process_video(video_url: str, spot_id: str, cam_number) -> str:
     """
     This function downloads a video clip from provided url, cuts the video down to 60s, compresses it and saves it to
     the output directory with appropriate naming. It also changes the creation date of the file.
@@ -15,6 +13,8 @@ def download_and_process_video(video_url: str, spot_id: str) -> str:
     :param spot_id: surf spot id, used in file naming.
     :return: filepath of processed video.
     """
+    output_directory = "videos"
+
     # Directory to save the processed videos
     os.makedirs(output_directory, exist_ok=True)  # Create the output directory if it doesn't exist
 
@@ -33,7 +33,7 @@ def download_and_process_video(video_url: str, spot_id: str) -> str:
     video_timestamp_str = video_url.split(".")[-2]
 
     # Process and save as new file
-    output_filename = f"{spot_id}_{video_timestamp_str}.mp4"
+    output_filename = f"{spot_id}_{cam_number}_{video_timestamp_str}.mp4"
     output_file_path = os.path.join(output_directory, output_filename)
     crf_value = 28  # Compression rate, default is 24, higher means more compression.
 
