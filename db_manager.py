@@ -197,7 +197,7 @@ class DBManager:
 
         if not existing_spot:
             # noinspection SqlDialectInspection,SqlNoDataSourceInspection
-            insert_query = "INSERT INTO surf_spots (spot_id) VALUES (?)"
+            insert_query = "INSERT OR REPLACE INTO surf_spots (spot_id) VALUES (?)"
             self.cursor.execute(insert_query, (spot_id,))
 
             self.log.append(f'added missing spot {spot_id} to surf_spots')
@@ -365,10 +365,10 @@ class DBManager:
             - footage_timestamp_value (datetime): The timestamp of the footage.
             - download_link_value (str): The URL of the video download link.
         """
-        insert_query = (
-            "INSERT INTO cam_videos (spot_id, cam_number, footage_timestamp, download_link, download_status) "
-            "VALUES (?, ?, ?, ?, 'Pending')"
-        )
+        insert_query = """
+            INSERT OR REPLACE INTO cam_videos (spot_id, cam_number, footage_timestamp, download_link, download_status)
+            VALUES (?, ?, ?, ?, 'Pending')
+        """
 
         self.cursor.execute(insert_query, scraped_link_data)
         self.conn.commit()
