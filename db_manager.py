@@ -283,6 +283,18 @@ class DBManager:
         surf_cam_rows = self.cursor.fetchall()
         return surf_cam_rows
 
+    def get_surf_spot_ids(self) -> list:
+        """
+        Get all surf spots in the db.
+
+        :return: list of rows in surf_spots table.
+        """
+        select_query = "SELECT spot_id FROM surf_spots"
+        self.cursor.execute(select_query)
+
+        surf_spot_rows = self.cursor.fetchall()
+        return surf_spot_rows
+
     def insert_scraped_video_links(self, scraped_link_data: tuple) -> None:
         """
         Inserts scraped video link data into the cam_footage table.
