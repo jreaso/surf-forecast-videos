@@ -1,5 +1,6 @@
 import sqlite3
 from forecast import Forecast
+import datetime
 
 
 class DBManager:
@@ -95,6 +96,22 @@ class DBManager:
                 FOREIGN KEY (spot_id, forecast_timestamp) REFERENCES forecasts(spot_id, forecast_timestamp)
             )
         """,
+        """
+            CREATE TABLE IF NOT EXISTS sunlight_times (
+                -- Primary Keys
+                spot_id TEXT NOT NULL,
+                date DATE NOT NULL,
+                -- Values
+                midnight TIMESTAMP,
+                dawn TIMESTAMP,
+                sunrise TIMESTAMP,
+                sunset TIMESTAMP,
+                dusk TIMESTAMP,
+                -- Primary and Foreign Keys
+                PRIMARY KEY (spot_id, date),
+                FOREIGN KEY (spot_id) REFERENCES surf_spots(spot_id)
+            )
+        """,
         """ 
             CREATE TABLE IF NOT EXISTS surf_spots (
                 spot_id TEXT PRIMARY KEY,
@@ -148,10 +165,10 @@ class DBManager:
 
         :param forecast: forecast object
         """
-        for forecast_entry in forecast.flatten():
-            spot_id = forecast_entry['spot_id']
-            timestamp = forecast_entry['timestamp']
+        flat_forecast = forecast.flatten()
+        spot_id = flat_forecast[0]['spot_id']
 
+        for forecast_entry in flat_forecast:
             # Check if the surf spot exists in the database, if not, insert it
             self._insert_surf_spot_if_not_exists(spot_id)
 
@@ -160,6 +177,9 @@ class DBManager:
 
             # Insert forecast swells into forecast_swells table
             self._insert_into_forecast_swells_table(forecast_entry)
+
+        # Insert sunlight times into sunlight_times tables
+        self._insert_into_sunlight_times_table(spot_id, forecast.sunlight_times(add_date=True))
 
         # Commit the transactions
         self.conn.commit()
@@ -242,6 +262,24 @@ class DBManager:
 
         self.log.append('inserted data into forecast_swells table')
 
+    def _insert_into_sunlight_times_table(self, spot_id: str, sunlight_times: list) -> None:
+        """
+        Insert sunlight times data into the sunlight_times table.
+
+        :param spot_id: surf spot id string.
+        :param sunlight_times: A list of dictionaries containing sunlight times data.
+        """
+        for sunlight_dict in sunlight_times:
+            insert_query = """
+                INSERT OR REPLACE INTO sunlight_times (spot_id, date, midnight, dawn, sunrise, sunset, dusk) 
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            """
+
+            order = ('date', 'midnight', 'dawn', 'sunrise', 'sunset', 'dusk')
+            data = (spot_id, ) + tuple(sunlight_dict[key] for key in order)
+
+            self.cursor.execute(insert_query, data)
+
     def insert_surf_spot(self, surf_spot: tuple) -> None:
         """
         Insert a surf spot into the surf_spots table.
@@ -270,6 +308,23 @@ class DBManager:
         self.conn.commit()
 
         self.log.append(f"inserted surf cam to surf_cams table and committed transaction")
+
+    def get_sunlight_times(self, spot_id: str, date: datetime.date) -> dict:
+        """
+        Get sunlight times for a date and spot.
+
+        :return: dictionary of sunlight times.
+        """
+        select_query = f"""
+            SELECT midnight, dawn, sunrise, sunset, dusk FROM sunlight_times
+            WHERE spot_id = '{spot_id}' AND date = '{date}'
+        """
+        self.cursor.execute(select_query)
+
+        row = self.cursor.fetchall()[0]
+        sunlight_times_dict = {key: row[i] for i, key in enumerate(['midnight', 'dawn', 'sunrise', 'sunset', 'dusk'])}
+
+        return sunlight_times_dict
 
     def get_surf_cams(self) -> list:
         """
