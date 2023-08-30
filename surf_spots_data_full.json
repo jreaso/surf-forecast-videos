@@ -1,5 +1,16 @@
 [
     {
+        "spot_id": "584204204e65fad6a77090ce",
+        "spot_name": "Whitesands",
+        "cameras": [
+            {
+                "cam_number": 1,
+                "cam_name": "Whitesands",
+                "rewind_link_extension": "whitesands/60dc2e530cee140bde3d34f3"
+            }
+        ]
+    },
+    {
         "spot_id": "5842041f4e65fad6a7708bc3",
         "spot_name": "Supertubos",
         "cameras": [
@@ -7,6 +18,17 @@
                 "cam_number": 1,
                 "cam_name": "Supertubos Main",
                 "rewind_link_extension": "supertubos/5834a117e411dc743a5d52ed"
+            }
+        ]
+    },
+    {
+        "spot_id": "5842041f4e65fad6a7708cfd",
+        "spot_name": "Anchor Point",
+        "cameras": [
+            {
+                "cam_number": 1,
+                "cam_name": "Anchor Point Madraba",
+                "rewind_link_extension": "anchor-point/5fd1e2a2bdd08a3999f23aa4"
             }
         ]
     },
