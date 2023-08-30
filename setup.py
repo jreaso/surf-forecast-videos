@@ -1,7 +1,7 @@
 from db_manager import DBManager
 import json
 
-db_manager_tmsc = DBManager('tmsc-testing')
+tmsc_db_manager = DBManager('tmsc-testing')
 
 
 def import_surf_data_from_json(db_manager, json_file_path):
@@ -32,4 +32,4 @@ def import_surf_data_from_json(db_manager, json_file_path):
 
 
 json_data_file_path = 'surf_spots_data.json'
-import_surf_data_from_json(db_manager_tmsc, json_data_file_path)
+import_surf_data_from_json(tmsc_db_manager, json_data_file_path)
