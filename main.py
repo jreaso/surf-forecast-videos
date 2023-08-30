@@ -47,24 +47,44 @@ def scrape_clips() -> None:
             db_manager.insert_scraped_video_links(scraped_link_data)
 
             # Calculate Label for Video
-            ...
+            status = 'Null'  # Default status
+            sunlight_dict = db_manager.get_sunlight_times(spot_id, footage_timestamp.date())
 
-            # Update Label
-            ...
+            if sunlight_dict:
+                sunrise, sunset = (datetime.strptime(sunlight_dict[key], "%Y-%m-%d %H:%M:%S")
+                                   for key in ('sunrise', 'sunset'))
+
+                # Check if video is in the light,
+                is_light = (sunrise <= footage_timestamp <= sunset)
+
+                # Check if video is taken between the hour and ten past the hour
+                hour = footage_timestamp.hour
+                minute = footage_timestamp.minute
+                is_early = (hour <= minute // 10 <= hour + 1)
+
+                if is_light and is_early:
+                    status = 'Pending'
+
+            db_manager.update_cam_video_status((spot_id, cam_number, footage_timestamp), status)
+
 
 def download_videos() -> None:
+    # Get Pending videos
     pass
 
 
+#update_forecasts()
 
+scrape_clips()
 
-#    Fetch all extensions and spot ids
-#    Fill in DB Partially, don't replace current rows - fetch_rewind_links('whitesands/60dc2e530cee140bde3d34f3')
+print(db_manager.get_pending_video_links())
 
+#d = db_manager.get_sunlight_times("5842041f4e65fad6a7708bc3", datetime.strptime("2023-08-30", "%Y-%m-%d").date())
 
-# Download Videos
-
+#print(d['sunrise'])
+#datetime.strptime(datetime_string, "%Y-%m-%d %H:%M:%S")
 
 # Close Connection to DB
 db_manager.close_connection()
+
 
