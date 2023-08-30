@@ -193,7 +193,7 @@ class DBManager:
             'surf_optimal_score', 'surf_human_relation', 'surf_raw_min', 'surf_raw_max',
             'wind_speed', 'wind_direction', 'wind_direction_type', 'wind_gust',
             'wind_optimal_score', 'forecast_probability', 'tide_type', 'tide_height',
-            'weather_temperature', 'weather_condition', 'weather_pressure', 'is_light'
+            'weather_temperature', 'weather_condition', 'weather_pressure'
         ]
         # `forecast_timestamp` column (in forecasts table) is equivalent to `timestamp` key (in forecast dict)
         keys = [col if col != 'forecast_timestamp' else 'timestamp' for col in columns]
@@ -293,11 +293,12 @@ class DBManager:
         self.cursor.execute(select_query)
 
         surf_spot_rows = self.cursor.fetchall()
-        return surf_spot_rows
+        surf_spot_ids = [row[0] for row in surf_spot_rows]
+        return surf_spot_ids
 
     def insert_scraped_video_links(self, scraped_link_data: tuple) -> None:
         """
-        Inserts scraped video link data into the cam_footage table.
+        Inserts scraped video link data into the cam_videos table.
 
         :param scraped_link_data: A tuple containing the scraped video link information in the following order:
             - spot_id_value (str): The identifier of the surf spot.
@@ -306,13 +307,13 @@ class DBManager:
             - download_link_value (str): The URL of the video download link.
         """
         insert_query = (
-            "INSERT INTO cam_footage (spot_id, cam_number, footage_timestamp, download_link, download_status) "
+            "INSERT INTO cam_videos (spot_id, cam_number, footage_timestamp, download_link, download_status) "
             "VALUES (?, ?, ?, ?, 'Pending')"
         )
 
         self.cursor.execute(insert_query, scraped_link_data)
         self.conn.commit()
-        self.log.append(f"inserted scraped cam footage link into cam_footage table and committed transaction")
+        self.log.append(f"inserted scraped cam footage link into cam_videos table and committed transaction")
 
     def update_cam_video_status(self, cam_video_entry: tuple, download_status: str) -> None:
         """
