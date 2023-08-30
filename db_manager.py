@@ -309,7 +309,7 @@ class DBManager:
 
         self.log.append(f"inserted surf cam to surf_cams table and committed transaction")
 
-    def get_sunlight_times(self, spot_id: str, date: datetime.date) -> dict:
+    def get_sunlight_times(self, spot_id: str, date: datetime.date):
         """
         Get sunlight times for a date and spot.
 
@@ -321,10 +321,14 @@ class DBManager:
         """
         self.cursor.execute(select_query)
 
-        row = self.cursor.fetchall()[0]
-        sunlight_times_dict = {key: row[i] for i, key in enumerate(['midnight', 'dawn', 'sunrise', 'sunset', 'dusk'])}
-
-        return sunlight_times_dict
+        rows = self.cursor.fetchall()
+        if rows:
+            row = rows[0]
+            sunlight_times_dict = {key: row[i]
+                                   for i, key in enumerate(['midnight', 'dawn', 'sunrise', 'sunset', 'dusk'])}
+            return sunlight_times_dict
+        else:
+            return None
 
     def get_surf_cams(self) -> list:
         """
