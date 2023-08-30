@@ -178,8 +178,7 @@ class Forecast:
 
         if add_date:
             for i, entry in enumerate(self.data['sunlight_times']):
-                sunrise_str = entry["sunrise"]
-                date = datetime.strptime(sunrise_str, "%Y-%m-%dT%H:%M:%S").date()
+                date = entry["sunrise"].date()
                 sunlight_times[i]["date"] = date.isoformat()
 
         return sunlight_times
