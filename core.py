@@ -48,7 +48,7 @@ def scrape_clips(db_manager: DBManager) -> None:
         cams_list.append((spot_id, cam_number))
 
     # Get URLs from scraper
-    rewind_clip_urls_all = fetch_rewind_links(rewind_link_extensions_list, headless=True)
+    rewind_clip_urls_all = fetch_rewind_links(rewind_link_extensions_list, headless=False)
 
     # Check each link and append to DB
     for (spot_id, cam_number), rewind_clip_urls in zip(cams_list, rewind_clip_urls_all):
@@ -72,7 +72,7 @@ def scrape_clips(db_manager: DBManager) -> None:
                 is_light = (sunrise <= footage_timestamp <= sunset)
 
                 # Check if video is taken between the hour and ten past the hour
-                is_early = (0 <= footage_timestamp.minute <= 10)
+                is_early = (0 <= footage_timestamp.minute < 10)
 
                 if is_light and is_early:
                     status = 'Pending'
