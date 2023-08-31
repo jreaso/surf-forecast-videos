@@ -55,7 +55,7 @@ def scrape_clips(db_manager: DBManager) -> None:
             cams_list.append((spot_id, cam_number))
 
         # Get URLs from scraper
-        rewind_clip_urls_all = fetch_rewind_links(rewind_link_extensions_list, headless=False)
+        rewind_clip_urls_all = fetch_rewind_links(rewind_link_extensions_list, headless=True)
 
         # Check each link and append to DB
         for (spot_id, cam_number), rewind_clip_urls in zip(cams_list, rewind_clip_urls_all):
