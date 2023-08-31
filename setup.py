@@ -29,8 +29,8 @@ def import_surf_data_from_json(db_manager, json_file_path):
                         print(f"Inserted surf cam: {cam_name}")
 
 
-tmsc_db_manager = DBManager('tmsc_db')
+db_manager = DBManager('SurfForecastDB')
 json_data_file_path = 'surf_spots_data.json'
-import_surf_data_from_json(tmsc_db_manager, json_data_file_path)
+import_surf_data_from_json(db_manager, json_data_file_path)
 
-tmsc_db_manager.close_connection()
+db_manager.close_connection()
