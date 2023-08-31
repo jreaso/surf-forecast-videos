@@ -13,6 +13,7 @@ testing.py
 # Ignore test database
 test
 tmsc-testing
+tmsc_db
 
 # Ignore config.json file with credentials
 config.json
