@@ -403,7 +403,7 @@ class DBManager:
         :return: A list of tuples, each containing the primary key information (spot_id, cam_number, footage_timestamp).
         """
         select_query = """
-            SELECT spot_id, cam_number, download_link
+            SELECT spot_id, cam_number, footage_timestamp, download_link
             FROM cam_videos
             WHERE download_status = 'Pending'
         """
@@ -415,7 +415,13 @@ class DBManager:
 
     def insert_downloaded_videos(self, cam_video_entry: tuple, video_storage_location: str) -> None:
         """
-        INCOMPLETE
+        Updated a row od cam_videos table with location of local video storage.
+
+        :param cam_video_entry: tuple to identify column of table with data in the following order:
+            - spot_id: identifier for surf spot.
+            - cam_number: which cam the footage is for at the spot.
+            - footage_timestamp: The timestamp of the video.
+        :param video_storage_location:
         """
         update_query = """
             UPDATE cam_videos
