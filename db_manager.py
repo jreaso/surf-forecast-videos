@@ -366,11 +366,16 @@ class DBManager:
             - download_link_value (str): The URL of the video download link.
         """
         insert_query = """
-            INSERT OR REPLACE INTO cam_videos (spot_id, cam_number, footage_timestamp, download_link, download_status)
+            INSERT INTO cam_videos (spot_id, cam_number, footage_timestamp, download_link, download_status)
             VALUES (?, ?, ?, ?, 'Pending')
+            WHERE NOT EXISTS (
+                SELECT 1
+                FROM cam_videos
+                WHERE spot_id = ? AND cam_number = ? AND footage_timestamp = ?
+            )
         """
 
-        self.cursor.execute(insert_query, scraped_link_data)
+        self.cursor.execute(insert_query, scraped_link_data + scraped_link_data[:3])
         self.conn.commit()
         self.log.append(f"inserted scraped cam footage link into cam_videos table and committed transaction")
 
