@@ -403,7 +403,7 @@ class DBManager:
         :return: A list of tuples, each containing the primary key information (spot_id, cam_number, footage_timestamp).
         """
         select_query = """
-            SELECT spot_id, cam_number, footage_timestamp
+            SELECT spot_id, cam_number, download_link
             FROM cam_videos
             WHERE download_status = 'Pending'
         """
