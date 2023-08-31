@@ -1,36 +1,46 @@
-# Time Machine Surf Cam
+# Surf Forecast and Videos Dataset
 
-The goal of this project is to be able to show short video clips of what a surf spot is likely to look like in the future based on the surfline forecast for that date. This involves creating a dataset and training an ML model to cluster forecasts together.
+This project builds a dataset of archived Surfline forecasts for several surf spots as well as periodic 60s videos of their cams.
 
-The dataset will consist of short labelled videos of surf spots taken periodically from surf cams along with Surfline's forecasts for that spot and time.
+This project is complimentary to 
 
-We limit this project to a small number of surf spots and cameras. Specifically we will focus on:
-- **Jeffreys Bay** (J-Bay), SA. A world famous surf spot with one of the best right hand waves in the world. We will be using two cameras for this spot.
-    - [Jeffreys Bay](https://www.surfline.com/surf-cams/jeffreys-bay-j-bay-/5f7ca72ba43acae7a74a4878) - The main camera which views the wave from above.
-    - [Jeffreys Bay Front](https://www.surfline.com/surf-cams/jeffreys-bay-j-bay-/62daa32b3fd9a5b33b2130ea) - Secondary camera viewing the waves front on.
-- **North Fistral**, Cornwall, UK. One of the UK's top surf spots.
-    - [North Fistral Overview](https://www.surfline.com/surf-cams/north-fistral-beach/5a21a0929c7bba001b256978)
-- **Whitesands**, Pembrokeshire, UK. A local beach break to me.
-    - [Whitesands Bay](https://www.surfline.com/surf-cams/whitesands/60dc2e530cee140bde3d34f3) is the only camera and does not show the main peak (right hand next to rocks).
+We limit this project to a small number of surf spots and cameras, due to storage and computation constraints. Specifically we will focus on:
+- **Jeffreys Bay** (J-Bay), SA.
+    - [J-Bay](https://www.surfline.com/surf-cams/jeffreys-bay-j-bay-/5f7ca72ba43acae7a74a4878) - The main camera which views the wave from above.
+    - [J-Bay Front](https://www.surfline.com/surf-cams/jeffreys-bay-j-bay-/62daa32b3fd9a5b33b2130ea) - Secondary camera viewing the waves front on.
+- **Supertubos**, Peniche, Portugal.
+    - [Supertubes](https://www.surfline.com/surf-report/supertubos/5842041f4e65fad6a7708bc3?camId=5834a117e411dc743a5d52ed) - The main camera.
+- **Fresh West**, Pembrokeshire, UK.
+    - There is no camera for this beach, but the forecast data is still collected as it can be used on its own, and it leaves the flexibility to integrating photos and videos from other sources (such as social media).
 
-We also store forecast data only for another spot. No videos are stored due to it not having a camera, but this will leave us the flexibility to integrating photos and videos from other sources (such as social media) in the future to be able to use the tools on this spot also.
+## Overview
 
-- **Fresh West**, Pembrokeshire, UK. Where the Welsh Nationals are held and a particularly consistent spot in Pembrokeshire.
-
-## Requirements
-
-- `FFMPEG`
-- Linux or Mac OS. Will not work on windows as modifies video creation date with `os.utime()`.
+![overview.png](overview.png)
 
 ## Files
 
+- `core.py` is the main script which combines functionalities of all other scripts.
+- `setup.py` can be run to set the database up with surf spots and cams. It loads data from `surf_spots_data.json`.
 - `forecast.py` is based on the `pysurfline` package and has a `SurflineWrapper` object which can be used to fetch the forecast for a spot and then the `Forecast` object can store forecast object and flatten it ready for a dataframe or database.
-- `db_manager.py` has a `DBManager` object which manages creating, reading and writing to/from the database.
+- `db_manager.py` has a `DBManager` object which manages creating, reading and writing to/from the database. All interactions with the database are handled through methods of this class.
+- `rewind_clip_scraper` uses Selenium to log into Surfline and find the cdn server links to rewind clips of the cams.
+- `surf_cam_video_processor.py` is responsible for downloading the surf videos and using `FFMPEG` to cut the videos down to 60s and compress them.
+- `run_all.py` and `run_forecasts.py` are scripts for automation which call on the functions in `core.py`.
+- `plotting.py` is an incomplete implementation to plot forecast objects.
+- `config.json` is a file for storing Surfline login details.
+  ```
+  {"email": "example@gmailcom", "password": "Password123"}
+  ```
 
 
-## Dataset Creation
+## Database Schema
 
-The first step is to build a system to fetch cam footage. We want to download a 1-minute clip (at a reduced framerate for storage) every hour during daylight. We will be pulling clips from Surfline's cam rewind feature. Once daily, we download all relevant clips in the last 24h. We will then need to process them and put them into storage. For storage reasons, clips will need to be cut down and their framerate will need to be reduced.
+![db_schema.png](db_schema.png)
 
-Alongside this we will query Surfline's forecast API and store the results in a database. Since the clips of the surf are hourly like the forecast data, we also want to include links to the video clips along with the forecast data. 
+**Videos are stored in `videos/` directory.**
 
+## Requirements
+
+- `FFMPEG` is used for video processing.
+- Linux or macOS. Will not work on windows as modifies video creation date with `os.utime()` in `surf_cam_video_processor.py`.
+- Required python packages can be found in `requirements.txt`.
