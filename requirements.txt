@@ -1,0 +1,9 @@
+datetime
+sqlite3
+requests
+pandas
+matplotlib
+selenium
+undetected_chromedriver
+ffmpeg-python
+regex
