@@ -54,6 +54,8 @@ def fetch_rewind_links(spot_rewind_extensions: list, headless=False) -> list:
     wait.until(EC.presence_of_element_located((By.CLASS_NAME, "NavigationBar_account__mC_o1")))  # wait until logged in
     print("Logged In")
 
+    rewind_clip_urls_all = []
+
     # Redirect to Rewinds Page
     for spot_rewind_extension in spot_rewind_extensions:
         rewind_url = f'https://www.surfline.com/surf-cams/{spot_rewind_extension}'
@@ -102,9 +104,11 @@ def fetch_rewind_links(spot_rewind_extensions: list, headless=False) -> list:
                 # wait until page loaded fully before moving on
                 wait.until(EC.visibility_of_element_located((By.ID, "sl-rewind-player")))
 
+            rewind_clip_urls_all.append(rewind_clip_urls)
+
     driver.quit()
 
-    return rewind_clip_urls
+    return rewind_clip_urls_all
 
 
 
