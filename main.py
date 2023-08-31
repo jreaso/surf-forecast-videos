@@ -6,14 +6,12 @@ from surf_cam_video_processor import download_and_process_video
 from datetime import datetime
 
 
-# Initialize DB Manager
-db_manager = DBManager('tmsc-testing')
-# First time running - run `setup.py`
+def update_forecasts(db_manager: DBManager) -> None:
+    """
+    Fetches forecast data and updates the database with the new forecast information.
 
-api_client = SurflineWrapper()  # For Fetching Forecast Data
-
-
-def update_forecasts() -> None:
+    :param db_manager: An instance of the DBManager class for database operations.
+    """
     # Cycle through surf spots
     surf_spot_ids = db_manager.get_surf_spot_ids()
 
@@ -24,20 +22,36 @@ def update_forecasts() -> None:
             "days": 5,
             "intervalHours": 1,
         }
+        api_client = SurflineWrapper()  # For Fetching Forecast Data
         forecast_data = api_client.fetch_forecast(params)
         forecast = Forecast(forecast_data)
         db_manager.insert_forecast(forecast)
 
 
-def scrape_clips() -> None:
+def scrape_clips(db_manager: DBManager) -> None:
+    """
+    Scrapes video clip URLs, processes them, and updates the database.
+
+    :param db_manager: An instance of the DBManager class for database operations.
+    """
     # Scrape Clips
     surf_cams = db_manager.get_surf_cams()
+
+    cams_list = []  # list of tuples with cam info
+    rewind_link_extensions_list = []  # list of urls to scrape from to pass to scraper
 
     # Cycle Through Cameras
     for surf_cam in surf_cams:
         spot_id, cam_number, rewind_link_extension = surf_cam
-        rewind_clip_urls = fetch_rewind_links(rewind_link_extension)
 
+        rewind_link_extensions_list.append(rewind_link_extension)
+        cams_list.append((spot_id, cam_number))
+
+    # Get URLs from scraper
+    rewind_clip_urls_all = fetch_rewind_links(rewind_link_extensions_list, headless=True)
+
+    # Check each link and append to DB
+    for (spot_id, cam_number), rewind_clip_urls in zip(cams_list, rewind_clip_urls_all):
         # Insert Links into DB
         for url in rewind_clip_urls:
             # Find the timestamp of the video
@@ -58,9 +72,7 @@ def scrape_clips() -> None:
                 is_light = (sunrise <= footage_timestamp <= sunset)
 
                 # Check if video is taken between the hour and ten past the hour
-                hour = footage_timestamp.hour
-                minute = footage_timestamp.minute
-                is_early = (hour <= minute // 10 <= hour + 1)
+                is_early = (0 <= footage_timestamp.minute <= 10)
 
                 if is_light and is_early:
                     status = 'Pending'
@@ -68,23 +80,17 @@ def scrape_clips() -> None:
             db_manager.update_cam_video_status((spot_id, cam_number, footage_timestamp), status)
 
 
-def download_videos() -> None:
+def download_videos(db_manager: DBManager) -> None:
+    """
+    Downloads and processes pending videos, updating the database afterward.
+
+    :param db_manager: An instance of the DBManager class for database operations.
+    """
     # Get Pending videos
-    pass
-
-
-#update_forecasts()
-
-scrape_clips()
-
-print(db_manager.get_pending_video_links())
-
-#d = db_manager.get_sunlight_times("5842041f4e65fad6a7708bc3", datetime.strptime("2023-08-30", "%Y-%m-%d").date())
-
-#print(d['sunrise'])
-#datetime.strptime(datetime_string, "%Y-%m-%d %H:%M:%S")
-
-# Close Connection to DB
-db_manager.close_connection()
-
-
+    pending_rows = db_manager.get_pending_video_links()
+    for row in pending_rows:
+        spot_id, cam_number, footage_timestamp, video_url = row
+        # Download and Process Video
+        video_file_path = download_and_process_video(video_url, spot_id, cam_number)
+        # Update DB
+        db_manager.insert_downloaded_videos((spot_id, cam_number, footage_timestamp), video_file_path)
