@@ -11,6 +11,7 @@ def download_and_process_video(video_url: str, spot_id: str, cam_number) -> str:
 
     :param video_url: link to cdn server where rewind clips are hosted.
     :param spot_id: surf spot id, used in file naming.
+    :param cam_number: number of the cam at the spot, used in file naming.
     :return: filepath of processed video.
     """
     output_directory = "videos"
