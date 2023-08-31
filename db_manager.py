@@ -367,7 +367,7 @@ class DBManager:
         """
         insert_query = """
             INSERT INTO cam_videos (spot_id, cam_number, footage_timestamp, download_link, download_status)
-            VALUES (?, ?, ?, ?, 'Pending')
+            SELECT ?, ?, ?, ?, 'Pending'
             WHERE NOT EXISTS (
                 SELECT 1
                 FROM cam_videos
