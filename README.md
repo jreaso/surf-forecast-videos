@@ -2,8 +2,6 @@
 
 This project builds a dataset of archived Surfline forecasts for several surf spots as well as periodic 60s videos of their cams.
 
-This project is complimentary to 
-
 We limit this project to a small number of surf spots and cameras, due to storage and computation constraints. Specifically we will focus on:
 - **Jeffreys Bay** (J-Bay), SA.
     - [J-Bay](https://www.surfline.com/surf-cams/jeffreys-bay-j-bay-/5f7ca72ba43acae7a74a4878) - The main camera which views the wave from above.
