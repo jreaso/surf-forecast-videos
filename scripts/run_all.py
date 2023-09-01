@@ -5,8 +5,8 @@ from src.db_manager import DBManager
 db_manager = DBManager('SurfForecastDB')
 
 # Run all functions
-#update_forecasts(db_manager)
-scrape_clips(db_manager, False, 1)
+update_forecasts(db_manager)
+scrape_clips(db_manager, True, 3)
 download_videos(db_manager)
 
 # Close Connection to DB
