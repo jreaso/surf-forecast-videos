@@ -10,3 +10,9 @@ SurfForecastDB
 
 # Ignore config.json file with credentials
 config.json
+
+# Ignore *.sh scripts even in nested folders (scripts folder)
+**/*.sh
+
+# Ignore cron logs
+cron-logs/
