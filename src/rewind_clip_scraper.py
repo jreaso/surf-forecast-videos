@@ -62,6 +62,7 @@ def fetch_rewind_links(spot_rewind_extensions: list, headless=True, num_days: in
     # Redirect to Rewinds Page
     for spot_rewind_extension in spot_rewind_extensions:
         rewind_url = f'https://www.surfline.com/surf-cams/{spot_rewind_extension}'
+        print(f"Navigating to {rewind_url}")
         driver.get(rewind_url)
 
         wait.until(EC.presence_of_element_located((By.ID, "sl-rewind-player")))  # wait until page loaded
@@ -110,6 +111,7 @@ def fetch_rewind_links(spot_rewind_extensions: list, headless=True, num_days: in
             rewind_clip_urls_all.append(rewind_clip_urls)
 
     driver.quit()
+    print("Finished Scraping")
 
     return rewind_clip_urls_all
 
