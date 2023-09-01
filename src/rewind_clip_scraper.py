@@ -111,7 +111,6 @@ def fetch_rewind_links(spot_rewind_extensions: list, headless=True, num_days: in
             rewind_clip_urls_all.append(rewind_clip_urls)
 
     driver.quit()
-    print("Finished Scraping")
 
     return rewind_clip_urls_all
 
