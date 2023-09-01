@@ -1,5 +1,6 @@
-from db_manager import DBManager
+from src.db_manager import DBManager
 import json
+import os
 
 
 def import_surf_data_from_json(db_manager, json_file_path):
@@ -30,7 +31,8 @@ def import_surf_data_from_json(db_manager, json_file_path):
 
 
 db_manager = DBManager('SurfForecastDB')
-json_data_file_path = 'surf_spots_data.json'
+
+json_data_file_path = os.path.join("..", "data", "surf_spots_data.json.json")
 import_surf_data_from_json(db_manager, json_data_file_path)
 
 db_manager.close_connection()

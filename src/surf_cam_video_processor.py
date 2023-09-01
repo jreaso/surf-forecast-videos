@@ -14,9 +14,9 @@ def download_and_process_video(video_url: str, spot_id: str, cam_number) -> str:
     :param cam_number: number of the cam at the spot, used in file naming.
     :return: filepath of processed video.
     """
-    output_directory = "videos"
+    output_directory = os.path.join("..", "surf_cam_videos")
 
-    # Directory to save the processed videos
+    # Directory to save the processed surf_cam_videos
     os.makedirs(output_directory, exist_ok=True)  # Create the output directory if it doesn't exist
 
     # Download the video

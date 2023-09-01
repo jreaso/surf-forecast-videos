@@ -94,12 +94,12 @@ def scrape_clips(db_manager: DBManager) -> None:
 
 def download_videos(db_manager: DBManager) -> None:
     """
-    Downloads and processes pending videos, updating the database afterward.
+    Downloads and processes pending surf_cam_videos, updating the database afterward.
 
     :param db_manager: An instance of the DBManager class for database operations.
     """
     try:
-        # Get Pending videos
+        # Get Pending surf_cam_videos
         pending_rows = db_manager.get_pending_video_links()
         for row in pending_rows:
             spot_id, cam_number, footage_timestamp, video_url = row

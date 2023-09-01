@@ -1,5 +1,5 @@
-from core import update_forecasts
-from db_manager import DBManager
+from src.core import update_forecasts
+from src.db_manager import DBManager
 
 # Initialize a DB Manager
 db_manager = DBManager('SurfForecastDB')

@@ -1,6 +1,7 @@
 import sqlite3
 from forecast import Forecast
 import datetime
+import os
 
 
 class DBManager:
@@ -12,10 +13,14 @@ class DBManager:
         Initialize the DBManager with the given database name, sets parameter for foreign keys to be used and checks
         database has the correct schema.
 
-        :param db_name: The name of the SQLite database.
+        :param db_name: The path to the SQLite database file.
         """
         self.db_name = db_name
-        self.conn = sqlite3.connect(db_name)
+
+        root_directory = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+        db_file_path = os.path.join(root_directory, db_name)
+
+        self.conn = sqlite3.connect(db_file_path)
         self.conn.execute("PRAGMA foreign_keys = ON;")
         self.cursor = self.conn.cursor()
 

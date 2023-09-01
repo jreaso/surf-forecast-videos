@@ -1,4 +1,5 @@
 import json
+import os
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -9,7 +10,7 @@ import undetected_chromedriver as uc  # avoids cloudflare bot preventions
 def fetch_rewind_links(spot_rewind_extensions: list, headless=False) -> list:
     """
     Semi-automated (may require CAPTCHA solved by human) Selenium based web scraper to log in to surfline and parse the
-    rewinds page for a surf spot, saving the urls to the videos on the cdn server.
+    rewinds page for a surf spot, saving the urls to the surf_cam_videos on the cdn server.
 
     :param spot_rewind_extensions: list of extensions on the base url for the rewind clips page for a certain surf spot.
     :param headless: whether to run browser headless or not.
@@ -26,8 +27,9 @@ def fetch_rewind_links(spot_rewind_extensions: list, headless=False) -> list:
     wait = WebDriverWait(driver, 20)  # wait instance to wait for elements to load
 
     # Log In
+    json_data_file_path = os.path.join("..", "data", "config.json")  # Build the path to config.json
     # Load the credential configuration from the JSON file
-    with open('config.json', 'r') as config_file:
+    with open(json_data_file_path, 'r') as config_file:
         config = json.load(config_file)
     email = config['email']
     password = config['password']

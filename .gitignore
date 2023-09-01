@@ -3,7 +3,7 @@ venv/
 __pycache__/
 
 # Ignore video folder
-videos/
+surf_cam_videos/
 
 # Ignore database
 SurfForecastDB
