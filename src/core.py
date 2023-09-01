@@ -1,8 +1,7 @@
-from db_manager import DBManager
-from forecast import Forecast
-from forecast import SurflineWrapper
-from rewind_clip_scraper import fetch_rewind_links
-from surf_cam_video_processor import download_and_process_video
+from .db_manager import DBManager
+from .forecast import Forecast, SurflineWrapper
+from .rewind_clip_scraper import fetch_rewind_links
+from .surf_cam_video_processor import download_and_process_video
 from datetime import datetime
 import logging
 

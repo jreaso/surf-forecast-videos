@@ -32,7 +32,7 @@ def import_surf_data_from_json(db_manager, json_file_path):
 
 surf_db_manager = DBManager('SurfForecastDB')
 
-json_data_file_path = os.path.join("..", "data", "surf_spots_data.json.json")
+json_data_file_path = os.path.join("..", "data", "surf_spots_data.json")
 import_surf_data_from_json(surf_db_manager, json_data_file_path)
 
 surf_db_manager.close_connection()

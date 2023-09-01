@@ -2,7 +2,7 @@ import requests
 import pandas as pd
 import json
 from urllib.parse import urlencode
-from utils import to_snake_case, datetime_serializer
+from .utils import to_snake_case, datetime_serializer
 from datetime import datetime
 
 

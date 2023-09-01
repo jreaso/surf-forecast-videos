@@ -1,7 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 
-from forecast import Forecast, SurflineWrapper
+from .forecast import Forecast, SurflineWrapper
 
 params = {
     "spotId": '5842041f4e65fad6a7708d0f',

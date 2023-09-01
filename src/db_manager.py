@@ -1,5 +1,5 @@
 import sqlite3
-from forecast import Forecast
+from .forecast import Forecast
 import datetime
 import os
 

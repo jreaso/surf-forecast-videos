@@ -5,5 +5,5 @@ pandas
 matplotlib
 selenium
 undetected_chromedriver
-ffmpeg-python
+ffmpeg
 regex
