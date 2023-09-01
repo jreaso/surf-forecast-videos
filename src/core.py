@@ -29,8 +29,10 @@ def update_forecasts(db_manager: DBManager) -> None:
             db_manager.insert_forecast(forecast)
 
         logging.info('update_forecast() ran successfully')
+        print('update_forecast() ran successfully')
     except Exception as e:
         logging.error(f'update_forecasts() failed: {str(e)}')
+        print(f'update_forecasts() failed: {str(e)}')
 
 
 def scrape_clips(db_manager: DBManager) -> None:
@@ -86,9 +88,11 @@ def scrape_clips(db_manager: DBManager) -> None:
                 db_manager.update_cam_video_status((spot_id, cam_number, footage_timestamp), status)
 
         logging.info('scrape_clips() ran successfully')
+        print('scrape_clips() ran successfully')
 
     except Exception as e:
         logging.error(f'scrape_clips() failed: {str(e)}')
+        print(f'scrape_clips() failed: {str(e)}')
 
 
 def download_videos(db_manager: DBManager) -> None:
@@ -108,6 +112,8 @@ def download_videos(db_manager: DBManager) -> None:
             db_manager.insert_downloaded_videos((spot_id, cam_number, footage_timestamp), video_file_path)
 
         logging.info('download_videos() ran successfully')
+        print('download_videos() ran successfully')
 
     except Exception as e:
         logging.error(f'download_videos() failed: {str(e)}')
+        print(f'download_videos() failed: {str(e)}')
