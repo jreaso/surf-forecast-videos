@@ -35,11 +35,13 @@ def update_forecasts(db_manager: DBManager) -> None:
         print(f'update_forecasts() failed: {str(e)}')
 
 
-def scrape_clips(db_manager: DBManager) -> None:
+def scrape_clips(db_manager: DBManager, headless=True, num_days: int = 3) -> None:
     """
     Scrapes video clip URLs, processes them, and updates the database.
 
     :param db_manager: An instance of the DBManager class for database operations.
+    :param headless: whether to run browser headless or not.
+    :param num_days: How many pages to scrape from (how many days back). Max is 5.
     """
     try:
         # Scrape Clips
@@ -56,7 +58,7 @@ def scrape_clips(db_manager: DBManager) -> None:
             cams_list.append((spot_id, cam_number))
 
         # Get URLs from scraper
-        rewind_clip_urls_all = fetch_rewind_links(rewind_link_extensions_list, headless=True)
+        rewind_clip_urls_all = fetch_rewind_links(rewind_link_extensions_list, headless=headless, num_days=num_days)
 
         # Check each link and append to DB
         for (spot_id, cam_number), rewind_clip_urls in zip(cams_list, rewind_clip_urls_all):

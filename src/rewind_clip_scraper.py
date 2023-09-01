@@ -7,13 +7,14 @@ from selenium.webdriver.support.ui import Select
 import undetected_chromedriver as uc  # avoids cloudflare bot preventions
 
 
-def fetch_rewind_links(spot_rewind_extensions: list, headless=False) -> list:
+def fetch_rewind_links(spot_rewind_extensions: list, headless=True, num_days: int = 2) -> list:
     """
     Semi-automated (may require CAPTCHA solved by human) Selenium based web scraper to log in to surfline and parse the
     rewinds page for a surf spot, saving the urls to the surf_cam_videos on the cdn server.
 
     :param spot_rewind_extensions: list of extensions on the base url for the rewind clips page for a certain surf spot.
     :param headless: whether to run browser headless or not.
+    :param num_days: How many pages to scrape from (how many days back). Max is 5.
     :return: rewind_clip_urls, a list of urls with links to the cdn server for downloading clips.
     """
     # Initialize Selenium Driver
@@ -77,7 +78,7 @@ def fetch_rewind_links(spot_rewind_extensions: list, headless=False) -> list:
         # Get the options before interacting
         option_values = [option.get_attribute("value") for option in select.options]
 
-        for option_value in option_values:
+        for option_value in option_values[:num_days]:
             # Re-find the select element
             select_element = driver.find_element(By.ID, 'sl-cam-rewind-date')
             select = Select(select_element)
