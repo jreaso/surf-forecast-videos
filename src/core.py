@@ -15,7 +15,6 @@ def update_forecasts(db_manager: DBManager) -> None:
     try:
         # Cycle through surf spots
         surf_spot_ids = db_manager.get_surf_spot_ids()
-        print(f"Surf Spot IDs: {surf_spot_ids}")
 
         for spot_id in surf_spot_ids:
             # Get Forecast Data and Insert into DB
@@ -54,7 +53,6 @@ def scrape_clips(db_manager: DBManager, headless=True, num_days: int = 3) -> Non
         # Cycle Through Cameras
         for surf_cam in surf_cams:
             spot_id, cam_number, rewind_link_extension = surf_cam
-            print(f"Surf Cam: {surf_cam}")
 
             rewind_link_extensions_list.append(rewind_link_extension)
             cams_list.append((spot_id, cam_number))
@@ -93,8 +91,8 @@ def scrape_clips(db_manager: DBManager, headless=True, num_days: int = 3) -> Non
 
                 db_manager.update_cam_video_status((spot_id, cam_number, footage_timestamp), status)
 
-        logging.info('scrape_clips() ran successfully')
-        print('scrape_clips() ran successfully')
+        logging.info('scrape_clips() ran')
+        print('scrape_clips() ran')
 
     except Exception as e:
         logging.error(f'scrape_clips() failed: {str(e)}')
