@@ -15,6 +15,7 @@ def update_forecasts(db_manager: DBManager) -> None:
     try:
         # Cycle through surf spots
         surf_spot_ids = db_manager.get_surf_spot_ids()
+        print(f"Surf Spot IDs: {surf_spot_ids}")
 
         for spot_id in surf_spot_ids:
             # Get Forecast Data and Insert into DB
@@ -53,6 +54,7 @@ def scrape_clips(db_manager: DBManager, headless=True, num_days: int = 3) -> Non
         # Cycle Through Cameras
         for surf_cam in surf_cams:
             spot_id, cam_number, rewind_link_extension = surf_cam
+            print(f"Surf Cam: {surf_cam}")
 
             rewind_link_extensions_list.append(rewind_link_extension)
             cams_list.append((spot_id, cam_number))
@@ -73,6 +75,8 @@ def scrape_clips(db_manager: DBManager, headless=True, num_days: int = 3) -> Non
                 # Calculate Label for Video
                 status = 'Null'  # Default status
                 sunlight_dict = db_manager.get_sunlight_times(spot_id, footage_timestamp.date())
+
+                print(f"sunlight_dict: {sunlight_dict}")
 
                 if sunlight_dict:
                     sunrise, sunset = (datetime.strptime(sunlight_dict[key], "%Y-%m-%d %H:%M:%S")
