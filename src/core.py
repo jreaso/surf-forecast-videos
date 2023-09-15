@@ -74,8 +74,6 @@ def scrape_clips(db_manager: DBManager, headless=True, num_days: int = 3) -> Non
                 status = 'Null'  # Default status
                 sunlight_dict = db_manager.get_sunlight_times(spot_id, footage_timestamp.date())
 
-                print(f"sunlight_dict: {sunlight_dict}")
-
                 if sunlight_dict:
                     sunrise, sunset = (datetime.strptime(sunlight_dict[key], "%Y-%m-%d %H:%M:%S")
                                        for key in ('sunrise', 'sunset'))
