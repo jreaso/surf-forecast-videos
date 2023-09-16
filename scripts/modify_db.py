@@ -39,6 +39,6 @@ if __name__ == "__main__":
     surf_db_manager = DBManager('SurfForecastDB')
 
     remove_all_cam_videos(surf_db_manager)
-    remove_cam_forecasts(surf_db_manager)
+    #remove_cam_forecasts(surf_db_manager)
 
     surf_db_manager.close_connection()
