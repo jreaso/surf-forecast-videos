@@ -3,7 +3,6 @@ import os
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.ui import Select
 import undetected_chromedriver as uc  # avoids cloudflare bot preventions
 
 
@@ -70,21 +69,17 @@ def fetch_rewind_links(spot_rewind_extensions: list, headless=True, num_days: in
         # Store Clip URLs From Page
         rewind_clip_urls = []  # initialize an empty list to append to
 
-        # Cycle Through Days
-        select_element = driver.find_element(By.ID, 'sl-cam-rewind-date')  # Locate the <select> element
+        # Cycle through days
+        for i in range(num_days):
+            # Find and click the dropdown div
+            dropdown_div = driver.find_element(By.ID, "sl-cam-rewind-date")
+            dropdown_div.click()
 
-        # Create a Select object to interact with the <select> element
-        select = Select(select_element)
-
-        # Get the options before interacting
-        option_values = [option.get_attribute("value") for option in select.options]
-
-        for option_value in option_values[:num_days]:
-            # Re-find the select element
-            select_element = driver.find_element(By.ID, 'sl-cam-rewind-date')
-            select = Select(select_element)
-
-            select.select_by_value(option_value)  # select the option
+            # Wait until options have loaded and click indexed option
+            dropdown_ul = wait.until(EC.presence_of_element_located((By.CLASS_NAME, "MuiMenu-list")))
+            dropdown_options = dropdown_ul.find_elements(By.TAG_NAME, "li")
+            option = dropdown_options[i]
+            option.click()
 
             wait.until(EC.visibility_of_element_located((By.ID, "sl-rewind-player")))  # wait until page loaded
 
