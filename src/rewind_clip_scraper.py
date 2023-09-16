@@ -65,7 +65,11 @@ def fetch_rewind_links(rewind_extensions: dict, headless=True, num_days: int = 2
         print(f"Navigating to {rewind_url}")
         driver.get(rewind_url)
 
-        wait.until(EC.presence_of_element_located((By.ID, "sl-rewind-player")))  # wait until page loaded
+        # Wait until page loaded
+        try:
+            wait.until(EC.presence_of_element_located((By.ID, "sl-rewind-player")))
+        except:
+            wait.until(EC.presence_of_element_located((By.CLASS_NAME, "CameraClips_cameraClips__KFOUH")))
 
         # Store Clip URLs From Page
         rewind_clip_urls = []  # initialize an empty list to append to
@@ -82,33 +86,33 @@ def fetch_rewind_links(rewind_extensions: dict, headless=True, num_days: int = 2
             option = dropdown_options[i]
             option.click()
 
-            wait.until(EC.visibility_of_element_located((By.ID, "sl-rewind-player")))  # wait until page loaded
+            try:
+                wait.until(EC.visibility_of_element_located((By.ID, "sl-rewind-player")))  # wait until page loaded
 
-            # Cycle Through Clips
-            rewind_clips_container = driver.find_elements(By.CLASS_NAME, "CameraClips_cameraClips__KFOUH")[0]
-            rewind_clip_buttons = rewind_clips_container.find_elements(By.CLASS_NAME, "CameraClips_cameraClip__Wh_DL")
+                # Cycle Through Clips
+                rewind_clips_container = driver.find_elements(By.CLASS_NAME, "CameraClips_cameraClips__KFOUH")[0]
+                rewind_clip_buttons = rewind_clips_container.find_elements(By.CLASS_NAME, "CameraClips_cameraClip__Wh_DL")
 
-            # Loop over the clips and click the button for each clip
-            for button in rewind_clip_buttons:
-                button.click()
+                # Loop over the clips and click the button for each clip
+                for button in rewind_clip_buttons:
+                    button.click()
 
-                # wait until link div is loaded
-                wait.until(EC.presence_of_element_located((By.CLASS_NAME, "CamRewind_camRewindDownloadBar__hc24X")))
+                    # wait until link div is loaded
+                    wait.until(EC.presence_of_element_located((By.CLASS_NAME, "CamRewind_camRewindDownloadBar__hc24X")))
 
-                # Select Link
-                element = driver.find_element(By.CLASS_NAME, "CamRewind_camRewindDownloadBar__hc24X")
-                link = element.find_element(By.TAG_NAME, "a").get_attribute("href")
+                    # Select Link
+                    element = driver.find_element(By.CLASS_NAME, "CamRewind_camRewindDownloadBar__hc24X")
+                    link = element.find_element(By.TAG_NAME, "a").get_attribute("href")
 
-                rewind_clip_urls.append(link)  # append link
+                    rewind_clip_urls.append(link)  # append link
 
-                # wait until page loaded fully before moving on
-                wait.until(EC.visibility_of_element_located((By.ID, "sl-rewind-player")))
+                    # wait until page loaded fully before moving on
+                    wait.until(EC.visibility_of_element_located((By.ID, "sl-rewind-player")))
 
-            rewind_clip_urls_all[cam] = rewind_clip_urls
+                rewind_clip_urls_all[cam] = rewind_clip_urls
+            except:
+                print("Error loading page")
 
     driver.quit()
 
     return rewind_clip_urls_all
-
-
-
