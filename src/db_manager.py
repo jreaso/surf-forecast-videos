@@ -444,6 +444,16 @@ class DBManager:
         self.cursor.execute(update_query, data)
         self.conn.commit()
         self.log.append(f"updated download_status column in row in cam_videos table and committed transaction")
+    
+    def run_query(self, query: str) -> None:
+        """
+        Run an SQL query on the database.
+
+        :param query: string query to run.
+        """
+        self.cursor.execute(query)
+        self.conn.commit()
+        self.log.append(f"ran query: {query}")
 
     def close_connection(self) -> None:
         """
