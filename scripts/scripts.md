@@ -10,5 +10,7 @@ The scripts in this `/scripts` directory run the code from `/src` to scrppae cli
 
 - `modify_db.py` is a one time use script to remove J-Bay as a surf spot and remove entries in `cam_videos` table as they were corrupted from a bug. 
 
+- `download_videos.py` is just for downloading pending videos.
+
 
 The project began running on 01/09/2023 but a bug with downloading and labelling videos caused `modify_db.py` to be run on 16/09/2023 to delete corrupted videos. The videos in `/surf_cam_videos` directory (not tracked by git) were manually deleted.
