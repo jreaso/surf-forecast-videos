@@ -1,0 +1,34 @@
+[
+    {
+        "spot_id": "5842041f4e65fad6a7708bc3",
+        "spot_name": "Supertubos",
+        "cameras": [
+            {
+                "cam_number": 1,
+                "cam_name": "Supertubos Main",
+                "rewind_link_extension": "supertubos/5834a117e411dc743a5d52ed"
+            }
+        ]
+    },
+    {
+        "spot_id": "5842041f4e65fad6a7708d0f",
+        "spot_name": "J-Bay",
+        "cameras": [
+            {
+                "cam_number": 1,
+                "cam_name": "J-Bay Overview",
+                "rewind_link_extension": "jeffreys-bay-j-bay-/5f7ca72ba43acae7a74a4878"
+            },
+            {
+                "cam_number": 2,
+                "cam_name": "J-Bay Front",
+                "rewind_link_extension": "jeffreys-bay-j-bay-/62daa32b3fd9a5b33b2130ea"
+            }
+        ]
+    },
+    {
+        "spot_id": "5842041f4e65fad6a7708cb2",
+        "spot_name": "Fresh West",
+        "cameras": []
+    }
+]

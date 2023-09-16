@@ -1,5 +1,16 @@
 [
     {
+        "spot_id": "584204204e65fad6a7709084",
+        "spot_name": "Tynemouth Longsands",
+        "cameras": [
+            {
+                "cam_number": 1,
+                "cam_name": "Tynemouth Longsands South",
+                "rewind_link_extension": "longsands/63d2a17205d9a5d4fb9e9850"
+            }
+        ]
+    },
+    {
         "spot_id": "5842041f4e65fad6a7708bc3",
         "spot_name": "Supertubos",
         "cameras": [
@@ -11,18 +22,13 @@
         ]
     },
     {
-        "spot_id": "5842041f4e65fad6a7708d0f",
-        "spot_name": "J-Bay",
+        "spot_id": "5842041f4e65fad6a7708be5",
+        "spot_name": "Snapper Rocks",
         "cameras": [
             {
                 "cam_number": 1,
-                "cam_name": "J-Bay Overview",
-                "rewind_link_extension": "jeffreys-bay-j-bay-/5f7ca72ba43acae7a74a4878"
-            },
-            {
-                "cam_number": 2,
-                "cam_name": "J-Bay Front",
-                "rewind_link_extension": "jeffreys-bay-j-bay-/62daa32b3fd9a5b33b2130ea"
+                "cam_name": "Snapper Rocks Main",
+                "rewind_link_extension": "snapper-rocks/5bc5b4bef52ad1ffe7ebf6a9"
             }
         ]
     },
