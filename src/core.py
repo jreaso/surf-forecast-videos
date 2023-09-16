@@ -35,7 +35,7 @@ def update_forecasts(db_manager: DBManager) -> None:
         print(f'update_forecasts() failed: {str(e)}')
 
 
-def scrape_clips(db_manager: DBManager, headless=True, num_days: int = 3) -> None:
+def scrape_clips(db_manager: DBManager, headless=True, num_days: int = 5) -> None:
     """
     Scrapes video clip URLs, processes them, and updates the database.
 
@@ -48,20 +48,21 @@ def scrape_clips(db_manager: DBManager, headless=True, num_days: int = 3) -> Non
         surf_cams = db_manager.get_surf_cams()
 
         cams_list = []  # list of tuples with cam info
-        rewind_link_extensions_list = []  # list of urls to scrape from to pass to scraper
+        rewind_links_dict = {} # dictionary of urls to scrape from to pass to scraper
 
         # Cycle Through Cameras
         for surf_cam in surf_cams:
             spot_id, cam_number, rewind_link_extension = surf_cam
+            cam = (spot_id, cam_number)
 
-            rewind_link_extensions_list.append(rewind_link_extension)
-            cams_list.append((spot_id, cam_number))
+            rewind_links_dict[cam] = rewind_link_extension
+            cams_list.append(cam)
 
         # Get URLs from scraper
-        rewind_clip_urls_all = fetch_rewind_links(rewind_link_extensions_list, headless=headless, num_days=num_days)
+        rewind_clip_urls = fetch_rewind_links(rewind_links_dict, headless=headless, num_days=num_days)
 
         # Check each link and append to DB
-        for (spot_id, cam_number), rewind_clip_urls in zip(cams_list, rewind_clip_urls_all):
+        for (spot_id, cam_number), rewind_clip_urls in rewind_clip_urls.items():
             # Insert Links into DB
             for url in rewind_clip_urls:
                 # Find the timestamp of the video

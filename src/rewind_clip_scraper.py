@@ -6,12 +6,12 @@ from selenium.webdriver.support import expected_conditions as EC
 import undetected_chromedriver as uc  # avoids cloudflare bot preventions
 
 
-def fetch_rewind_links(spot_rewind_extensions: list, headless=True, num_days: int = 2) -> list:
+def fetch_rewind_links(rewind_extensions: dict, headless=True, num_days: int = 2) -> list:
     """
     Semi-automated (may require CAPTCHA solved by human) Selenium based web scraper to log in to surfline and parse the
     rewinds page for a surf spot, saving the urls to the surf_cam_videos on the cdn server.
 
-    :param spot_rewind_extensions: list of extensions on the base url for the rewind clips page for a certain surf spot.
+    :param rewind_extensions: dict of extensions on the base url for the rewind clips page for surf spots.
     :param headless: whether to run browser headless or not.
     :param num_days: How many pages to scrape from (how many days back). Max is 5.
     :return: rewind_clip_urls, a list of urls with links to the cdn server for downloading clips.
@@ -56,10 +56,11 @@ def fetch_rewind_links(spot_rewind_extensions: list, headless=True, num_days: in
     wait.until(EC.presence_of_element_located((By.CLASS_NAME, "NavigationBar_account__mC_o1")))  # wait until logged in
     print("Logged In")
 
-    rewind_clip_urls_all = []
+    # Initialise empty dictionary to store lists of rewind clips for each spot
+    rewind_clip_urls_all = {}
 
     # Redirect to Rewinds Page
-    for spot_rewind_extension in spot_rewind_extensions:
+    for cam, spot_rewind_extension in rewind_extensions.items():
         rewind_url = f'https://www.surfline.com/surf-cams/{spot_rewind_extension}'
         print(f"Navigating to {rewind_url}")
         driver.get(rewind_url)
@@ -103,7 +104,7 @@ def fetch_rewind_links(spot_rewind_extensions: list, headless=True, num_days: in
                 # wait until page loaded fully before moving on
                 wait.until(EC.visibility_of_element_located((By.ID, "sl-rewind-player")))
 
-            rewind_clip_urls_all.append(rewind_clip_urls)
+            rewind_clip_urls_all[cam] = rewind_clip_urls
 
     driver.quit()
 
