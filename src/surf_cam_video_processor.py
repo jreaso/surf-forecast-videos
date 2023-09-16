@@ -1,6 +1,4 @@
-import requests
 import os
-import ffmpeg
 import subprocess
 from datetime import datetime
 from .db_manager import DBManager
@@ -40,33 +38,10 @@ def download_and_process_videos(db_manager: DBManager, pending_rows: list) -> No
     os.makedirs(output_directory, exist_ok=True)  # Create the output directory if it doesn't exist
 
     for spot_id, cam_number, footage_timestamp, video_url  in pending_rows:
-        """
-        # Download the video
-        response = requests.get(video_url, stream=True)
-        response.raise_for_status() # Raise an exception if the request fails
-
-        source_filename = video_url.split("/")[-1]
-        video_file_path = os.path.join(output_directory, f"TEMP_{source_filename}")
-
-        with open(video_file_path, "wb") as f:
-            for chunk in response.iter_content(chunk_size=8192):
-                f.write(chunk)
-        """
-
-
-
         # Process video
         video_timestamp_str = video_url.split(".")[-2]
-
         output_filename = f"{spot_id}_{cam_number}_{video_timestamp_str}.mp4"
         output_file_path = os.path.join(output_directory, output_filename)
-
-        """
-        crf_value = 28  # Compression rate, default is 24, higher means more compression.
-
-        # Process Video - using ffmpeg
-        ffmpeg.input(video_file_path).output(output_file_path, crf=crf_value, t=60, y=None, loglevel="error").run()
-        """
 
         process_video(video_url, output_file_path)
 
@@ -75,9 +50,6 @@ def download_and_process_videos(db_manager: DBManager, pending_rows: list) -> No
 
         # Set creation time
         os.utime(output_file_path, (os.path.getatime(output_file_path), video_timestamp_datetime))
-
-        # Delete the original video
-        #os.remove(video_file_path)
 
         # Update DB
         db_manager.insert_downloaded_videos((spot_id, cam_number, footage_timestamp), output_file_path)
