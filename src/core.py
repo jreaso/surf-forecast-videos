@@ -1,7 +1,7 @@
 from .db_manager import DBManager
 from .forecast import Forecast, SurflineWrapper
 from .rewind_clip_scraper import fetch_rewind_links
-from .surf_cam_video_processor import download_and_process_video
+from .surf_cam_video_processor import download_and_process_videos
 from datetime import datetime
 import logging
 
@@ -104,14 +104,11 @@ def download_videos(db_manager: DBManager) -> None:
     :param db_manager: An instance of the DBManager class for database operations.
     """
     try:
-        # Get Pending surf_cam_videos
+        # Get Pending entries from surf_cam_videos table
         pending_rows = db_manager.get_pending_video_links()
-        for row in pending_rows:
-            spot_id, cam_number, footage_timestamp, video_url = row
-            # Download and Process Video
-            video_file_path = download_and_process_video(video_url, spot_id, cam_number)
-            # Update DB
-            db_manager.insert_downloaded_videos((spot_id, cam_number, footage_timestamp), video_file_path)
+
+        # Download and process each video
+        download_and_process_videos(db_manager, pending_rows)
 
         logging.info('download_videos() ran successfully')
         print('download_videos() ran successfully')
