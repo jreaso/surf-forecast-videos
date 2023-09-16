@@ -6,7 +6,7 @@ db_manager = DBManager('SurfForecastDB')
 
 # Run all functions
 update_forecasts(db_manager)
-scrape_clips(db_manager, False, 5)
+scrape_clips(db_manager, True, 5)
 download_videos(db_manager)
 
 # Close Connection to DB
