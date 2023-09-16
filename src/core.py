@@ -68,9 +68,6 @@ def scrape_clips(db_manager: DBManager, headless=True, num_days: int = 5) -> Non
                 # Find the timestamp of the video
                 footage_timestamp = datetime.strptime(url.split(".")[-2], "%Y%m%dT%H%M%S%f")
 
-                scraped_link_data = (spot_id, cam_number, footage_timestamp, url)
-                db_manager.insert_scraped_video_links(scraped_link_data)
-
                 sunlight_dict = db_manager.get_sunlight_times(spot_id, footage_timestamp.date())
 
                 # Calculate if video should be inserted
@@ -86,8 +83,9 @@ def scrape_clips(db_manager: DBManager, headless=True, num_days: int = 5) -> Non
                     is_early = (0 <= footage_timestamp.minute < 10)
 
                     if is_light and is_early:
-                        # Insert clip with Pending status
-                        db_manager.update_cam_video_status((spot_id, cam_number, footage_timestamp), 'Pending')
+                        # Insert clip with 'Pending' status
+                        scraped_link_data = (spot_id, cam_number, footage_timestamp, url)
+                        db_manager.insert_scraped_video_links(scraped_link_data)
 
         logging.info('scrape_clips() ran')
         print('scrape_clips() ran')
