@@ -2,14 +2,13 @@
 
 This project builds a dataset of archived Surfline forecasts for several surf spots as well as periodic 60s videos of their cams.
 
-**_Note: Due to bug, will need to reset database and videos._**
-
 We limit this project to a small number of surf spots and cameras, due to storage and computation constraints. Specifically we will focus on:
-- **Jeffreys Bay** (J-Bay), SA.
-    - [J-Bay](https://www.surfline.com/surf-cams/jeffreys-bay-j-bay-/5f7ca72ba43acae7a74a4878) - The main camera which views the wave from above.
-    - [J-Bay Front](https://www.surfline.com/surf-cams/jeffreys-bay-j-bay-/62daa32b3fd9a5b33b2130ea) - Secondary camera viewing the waves front on.
-- **Supertubos**, Peniche, Portugal.
+- **Supertubes**, Peniche, Portugal.
     - [Supertubes](https://www.surfline.com/surf-report/supertubos/5842041f4e65fad6a7708bc3?camId=5834a117e411dc743a5d52ed) - The main camera.
+- **Snapper Rocks**, Queensland, Australia. On the goldcoast, part of superbanks.
+    - [Snapper Rocks](https://www.surfline.com/surf-report/snapper-rocks/5842041f4e65fad6a7708be5?camId=5bc5b4bef52ad1ffe7ebf6a9) - The main camera.
+- **Tynemouth Longsands**, NE England, UK.
+    - [Tynemouth Longsands South](https://www.surfline.com/surf-report/longsands/584204204e65fad6a7709084?camId=63d2a17205d9a5d4fb9e9850) - Camera for south side.
 - **Fresh West**, Pembrokeshire, UK.
     - There is no camera for this beach, but the forecast data is still collected as it can be used on its own, and it leaves the flexibility to integrating photos and videos from other sources (such as social media).
 
